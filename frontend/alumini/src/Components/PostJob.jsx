@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { TextField, MenuItem, Button } from "@mui/material";
-import { Work, Business, LocationOn, Description, CalendarToday, MonetizationOn, Build } from "@mui/icons-material";
+import { Work, Business, LocationOn, Description, CalendarToday, MonetizationOn, Build, Link } from "@mui/icons-material"; // Add Link icon for website
 
 const PostJob = () => {
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ const PostJob = () => {
     description: "",
     postedByName: "",
     deadline: "",
+    companyWebsite: "", // Add companyWebsite field
   });
 
   const [error, setError] = useState("");
@@ -44,10 +45,11 @@ const PostJob = () => {
         skillsRequired: jobData.skillsRequired.split(","),
         postedBy: user._id,
         postedByName: user.userName,
+        status: "pending", // Set status as "pending"
       });
 
       if (response.status === 201) {
-        setSuccess("Job posted successfully");
+        setSuccess("Job posted successfully and is awaiting approval.");
         setTimeout(() => {
           navigate("/applyjob");
         }, 2000);
@@ -174,6 +176,18 @@ const PostJob = () => {
             required 
             fullWidth 
             InputLabelProps={{ shrink: true }} 
+          />
+        </div>
+
+        {/* Company Website */}
+        <div className="flex items-center space-x-2">
+          <Link className="text-blue-600" />
+          <TextField 
+            label="Company Website" 
+            name="companyWebsite" 
+            value={jobData.companyWebsite} 
+            onChange={handleChange} 
+            fullWidth 
           />
         </div>
 

@@ -1,21 +1,24 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 
 const JobDetails = () => {
   const { id } = useParams(); // Get job ID from URL
+  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [applied, setApplied] = useState(false);
-  const { user } = useContext(UserContext); // Get logged-in user details
+  const { user } = useContext(UserContext);
+  const{role}=useContext(UserContext); // Get logged-in user details
 
+  // Fetch job details
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/jobs/${id}`);
         setJob(response.data);
 
-        // Corrected: Check if the logged-in user's ID exists in appliedUsers array of objects
+        // Check if the logged-in user has applied
         if (user && response.data.appliedUsers.some((u) => u.userId === user._id)) {
           setApplied(true);
         }
@@ -27,6 +30,7 @@ const JobDetails = () => {
     fetchJobDetails();
   }, [id, user]);
 
+  // Handle Apply for Job
   const handleApply = async () => {
     if (!user) {
       alert("You must be logged in to apply for jobs.");
@@ -34,12 +38,12 @@ const JobDetails = () => {
     }
 
     if (applied) {
-      alert("You have already applied for this job!"); // Alert when clicking "Apply" again
+      alert("You have already applied for this job!");
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/apply", {
+      await axios.post("http://localhost:3000/apply", {
         jobId: id,
         userId: user._id,
         userName: user.userName,
@@ -57,6 +61,30 @@ const JobDetails = () => {
     }
   };
 
+  // Handle Job Approval (Admin)
+  const handleApprove = async () => {
+    try {
+      await axios.put(`http://localhost:3000/approve-job/${id}`);
+      setJob((prevJob) => ({ ...prevJob, status: "approved" }));
+      alert("Job approved successfully!");
+    } catch (error) {
+      console.error("Error approving job:", error);
+      alert("Failed to approve job.");
+    }
+  };
+
+  // Handle Job Rejection (Admin)
+  const handleReject = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/delete-job/${id}`);
+      alert("Job rejected and deleted.");
+      navigate("/admin/jobs"); // Redirect admin after rejecting the job
+    } catch (error) {
+      console.error("Error rejecting job:", error);
+      alert("Failed to reject job.");
+    }
+  };
+
   if (!job) return <p>Loading job details...</p>;
 
   return (
@@ -67,16 +95,40 @@ const JobDetails = () => {
       <p className="mt-2"><strong>Skills Required:</strong> {job.skillsRequired.join(", ")}</p>
       <p className="mt-2"><strong>Salary:</strong> {job.salary}</p>
       <p className="mt-2"><strong>Deadline:</strong> {new Date(job.deadline).toLocaleDateString()}</p>
+      <p className="mt-2">
+        <strong>Status:</strong> 
+        <span className={job.status === "approved" ? "text-green-500" : "text-yellow-500"}>
+          {job.status}
+        </span>
+      </p>
 
-      {!applied ? (
+      {/* Show Apply button for alumni */}
+      {role === "user" && (
         <button
           onClick={handleApply}
-          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 mt-4"
+          className={`py-2 px-4 rounded-md mt-4 ${applied ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 text-white"}`}
+          disabled={applied}
         >
-          Apply
+          {applied ? "Already Applied" : "Apply"}
         </button>
-      ) : (
-        <p className="text-green-500 mt-4">You have already applied for this job!</p>
+      )}
+
+      {/* Show Approve & Reject buttons for admin */}
+      {role === "admin" && job.status !== "approved" && (
+        <div className="mt-4 space-x-4">
+          <button
+            onClick={handleApprove}
+            className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+          >
+            Approve
+          </button>
+          <button
+            onClick={handleReject}
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
+          >
+            Reject
+          </button>
+        </div>
       )}
     </div>
   );

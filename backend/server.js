@@ -19,6 +19,7 @@ const db=mongoose.connection;
 db.on('error',(error)=> console.error(error));
 db.once('open',()=> console.log('Mongodb connected'));
 
+
 app.use(cors());
 app.use(express.json());
 
@@ -68,40 +69,44 @@ app.post("/signup", upload.fields([{ name: "avatar" }, { name: "marksheet" }]), 
 });
 
 
-  app.post("/login", async (req, res) => {
-    const { userName, password } = req.body;
+app.post("/login", async (req, res) => {
+  const { userName, password } = req.body;
 
-   //console.log(userName+password);
-  
-    try {
-      let user = await AdminProfile.findOne({name:userName });
-      let role="admin";
-  
-      if (!user) {
-        user=await AluminiProfile.findOne({userName});
-        role="user";
-      }
+  try {
+    let user = await AdminProfile.findOne({ name: userName });
+    let role = "admin";
 
-      if(!user){
-        return res.status(400).json({message:"User not found"});
-      }
-
-      //console.log(role);
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
-      }
-  
-      const token = jwt.sign({ id: user._id, userName:userName,role }, process.env.JWT_SECRET);
-      res.json({ message: "User logged in successfully", token, user,role });
-
-    } catch (error) {
-      console.error(error)
-      res.status(500).json({ message: "Server error" });
+    if (!user) {
+      user = await AluminiProfile.findOne({ userName });
+      role = "user";
     }
-  });
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // If the user is an alumni, check approval status
+    if (role === "user" && user.status !== "approved") {
+      return res.status(403).json({ message: "Your account is pending approval." });
+    }
+
+    // Verify password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Generate JWT token with user details
+    const token = jwt.sign({ id: user._id, userName, role }, process.env.JWT_SECRET);
+
+    res.json({ message: "User logged in successfully", token, user, role });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 
   app.get('/profile',authenticateToken, async(req,res)=>{
@@ -129,7 +134,7 @@ app.get("/profile/:userName", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    console.log(user);
+    //console.log(user);
     res.json(user);
   } catch (err) {
     console.error("Error fetching user:", err);
@@ -190,7 +195,6 @@ app.post("/donate", async (req, res) => {
 app.post("/postjobs", async(req, res)=>{
   try{
     const {title, companyName, location, jobType, skillsRequired, salary, description,deadline,postedBy, postedByName}=req.body;
-
     if(!title || !companyName || !location || !description || !deadline){
       return res.status(400).json({message: "Please fill in all required fields"});
     }
@@ -218,26 +222,29 @@ app.post("/postjobs", async(req, res)=>{
 });
 
 
-app.get("/jobs", async(req,res)=>{
-  try{
-    const jobs=await Job.find();
+app.get("/jobs", async (req, res) => {
+  try {
+    const jobs = await Job.find({ status: "approved" }); // Filter only approved jobs
     res.json(jobs);
-  }catch(error){
-    res.status(500).json({error: "Error fetching jobs"});
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching jobs" });
   }
 });
 
 
+
 app.get("/jobs/:id", async(req,res)=>{
   try{
+    
     const job=await Job.findById(req.params.id);
-
     if(!job) return res.status(404).json({error:"Job not found"});
     res.json(job);
   }catch(error){
     res.status(500).json({error:"Error fetching job details"});
   }
 });
+
+
 
 
 app.post("/apply", async (req, res) => {
@@ -250,12 +257,10 @@ app.post("/apply", async (req, res) => {
       return res.status(404).json({ error: "Job not found" });
     }
 
-    // Ensure uniqueness before adding
     if (job.appliedUsers.some(user => user.userId.toString() === userId)) {
       return res.status(400).json({ error: "User already applied" });
     }
-
-    job.appliedUsers.push({ userId, userName });
+    job.appliedUsers.push({userId, userName});
     await job.save();
 
     res.json({ message: "Successfully applied", appliedUsers: job.appliedUsers });
@@ -272,8 +277,6 @@ app.get("/job/:jobId/applied-users", async (req, res) => {
   try {
     const { jobId } = req.params;
     const { userId } = req.query; // Get the current logged-in user ID
-
-    //console.log(jobId+" "+userId);
 
     const job = await Job.findById(jobId);
 
@@ -325,7 +328,6 @@ app.put("/alumni/:id/status", async (req, res) => {
 
 
 
-
 app.get("/alumni/:id", async (req, res) => {
   try {
     const alumni = await AluminiProfile.findById(req.params.id);
@@ -341,9 +343,48 @@ app.get("/alumni/:id", async (req, res) => {
 
 
 
+app.get("/pending-jobs", async (req, res) => {
+  try {
+
+    const pendingJobs = await Job.find({ status: "pending" });
+    res.status(200).json(pendingJobs);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching pending jobs", error });
+  }
+});
+
+
+app.get("/approved-jobs", async (req, res) => {
+  try {
+    const approvedJobs = await Job.find({ status: "approved" });
+    res.status(200).json(approvedJobs);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching approved jobs", error });
+  }
+});
+
+
+app.put("/approve-job/:id", async (req, res) => {
+  try {
+    const job = await Job.findByIdAndUpdate(req.params.id, { status: "approved" }, { new: true });
+    if (!job) return res.status(404).json({ message: "Job not found" });
+    res.status(200).json({ message: "Job approved successfully", job });
+  } catch (error) {
+    res.status(500).json({ message: "Error approving job", error });
+  }
+});
 
 
 
+app.delete("/delete-job/:id", async (req, res) => {
+  try {
+    const job = await Job.findByIdAndDelete(req.params.id);
+    if (!job) return res.status(404).json({ message: "Job not found" });
+    res.status(200).json({ message: "Job deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting job", error });
+  }
+});
 
 
 app.use(authenticateToken);

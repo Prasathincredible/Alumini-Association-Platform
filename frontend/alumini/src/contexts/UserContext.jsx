@@ -6,46 +6,27 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  
-  // Fetch logged-in user from backend
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("authToken"); // Get token from localStorage
-        if (!token) return; // No token, no API call
+  const [role, setRole] = useState(""); // Initialize role from localStorage
 
-        const response = await axios.get("http://localhost:3000/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Send token in headers
-          },
-        });
-        //console.log(response.data);
-        setUser(response.data);
-         // ✅ Correct way to set user
-      } catch (error) {
-        console.error("Error fetching user:", error.response?.data || error.message);
-      }
-    };
-
-    fetchUser();
-  }, []); // Runs only once when the app starts
-
-  // Function to update user state after login
-  const loginUser = (userData, token) => {
+  // Function to log in user and store token & role
+  const loginUser = (userData, token, userRole) => {
     setUser(userData);
-    localStorage.setItem("authToken", token); // Store token
+    setRole(userRole); // Set role
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("role", userRole);
   };
 
-  // Function to logout user
+  // Function to log out user
   const logoutUser = () => {
     setUser(null);
-    localStorage.removeItem("authToken"); 
-    localStorage.removeItem("role");   // Remove token on logout
+    setRole(""); // Clear role
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
   };
 
   return (
-    <UserContext.Provider value={{ user, loginUser, logoutUser }}>
-      {children} {/* Ensure children are wrapped */}
+    <UserContext.Provider value={{ user, role, loginUser, logoutUser }}>
+      {children}
     </UserContext.Provider>
   );
 };

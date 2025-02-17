@@ -17,6 +17,7 @@ const AlumniDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [alumni, setAlumni] = useState(null);
+  const [status, setStatus] = useState(null); // New state for tracking approval/rejection
 
   useEffect(() => {
     axios
@@ -31,8 +32,8 @@ const AlumniDetails = () => {
   const handleApproval = async (status) => {
     try {
       await axios.put(`http://localhost:3000/alumni/${id}/status`, { status });
+      setStatus(status); // Update the status state
       alert(`Alumni has been ${status}`);
-      navigate("/admin/manage-alumni");
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -158,18 +159,28 @@ const AlumniDetails = () => {
 
         {/* Bottom Section: Buttons */}
         <div className="mt-auto flex justify-between pt-4">
-          <button
-            onClick={() => handleApproval("approved")}
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition w-1/2 mr-2"
-          >
-            Approve
-          </button>
-          <button
-            onClick={() => handleApproval("rejected")}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition w-1/2 ml-2"
-          >
-            Reject
-          </button>
+          {status === null && (
+            <>
+              <button
+                onClick={() => handleApproval("approved")}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition w-1/2 mr-2"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleApproval("rejected")}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition w-1/2 ml-2"
+              >
+                Reject
+              </button>
+            </>
+          )}
+          {status === "approved" && (
+            <p className="text-green-600 font-semibold w-full text-center">Approved</p>
+          )}
+          {status === "rejected" && (
+            <p className="text-red-600 font-semibold w-full text-center">Rejected</p>
+          )}
         </div>
 
         {/* Back Button */}

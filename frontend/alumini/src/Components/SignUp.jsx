@@ -48,17 +48,18 @@ const Signup = () => {
           formDataToSend.append(key, formData[key]);
         }
       });
-
+  
       await axios.post("http://localhost:3000/signup", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      alert("Signup successful!");
-      navigate("/");
+  
+      alert("Signup successful! Waiting for admin approval.");
+      navigate("/"); // Redirect to login page
     } catch (error) {
       alert("Signup failed. Please try again.");
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#f0f4ff] to-[#e3eafc]">

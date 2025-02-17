@@ -2,10 +2,12 @@ import { useState, useContext} from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
+import {UserContext} from '../contexts/UserContext';
+
 
 const LoginPage = () => {
-  const {user}=useContext(UserContext);
+
+  const {loginUser} =useContext(UserContext);
   const [formData, setFormData] = useState({ userName: "", password: "" });
   const [error, setError] = useState("");
   const navigate=useNavigate();
@@ -33,11 +35,10 @@ const LoginPage = () => {
         icon: 'success'
       });
 
-      localStorage.setItem("authToken", res.data.token);
-      localStorage.setItem("role", res.data.role); // Store role in local storage
-      console.log(res.data.user.userName);
+      const {user,token,role}=res.data;
 
-      // Redirect based on role
+      loginUser(user,token,role);
+      
       if (res.data.role === "admin") {
         navigate("/admin_dashboard");
       } else {
@@ -56,7 +57,6 @@ const LoginPage = () => {
         {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username Input */}
           <div className="relative">
             <FaUser className="absolute left-3 top-3 text-gray-500" />
             <input
