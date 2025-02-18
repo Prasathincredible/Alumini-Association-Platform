@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaCalendarAlt, FaTasks, FaGraduationCap, FaUserCheck, FaBriefcase, FaSignOutAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaTasks, FaGraduationCap, FaUserCheck, FaBriefcase, FaSignOutAlt, FaAddressBook } from "react-icons/fa";
 import axios from "axios";
 
 function AdminDashboard() {
@@ -10,7 +10,6 @@ function AdminDashboard() {
   const [selectedSection, setSelectedSection] = useState("alumni"); // Default section
   const navigate = useNavigate();
 
-  // Fetch pending alumni
   useEffect(() => {
     const fetchPendingAlumni = async () => {
       try {
@@ -20,31 +19,25 @@ function AdminDashboard() {
         console.error("Error fetching alumni:", error);
       }
     };
-
     fetchPendingAlumni();
   }, []);
 
-  // Fetch jobs (pending and approved)
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const pendingResponse = await axios.get("http://localhost:3000/pending-jobs");
+        const pendingResponse = await axios.get("http://localhost:3000/job/pending-jobs");
         setPendingJobs(pendingResponse.data);
-
-        const approvedResponse = await axios.get("http://localhost:3000/approved-jobs");
+        const approvedResponse = await axios.get("http://localhost:3000/job/approved-jobs");
         setApprovedJobs(approvedResponse.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);
       }
     };
-
     fetchJobs();
   }, []);
 
-  // Logout function
   const handleLogout = () => {
-     // Remove token (if stored in local storage)
-    navigate("/"); // Redirect to login page
+    navigate("/");
   };
 
   return (
@@ -53,39 +46,24 @@ function AdminDashboard() {
       <aside className="w-64 bg-gray-900 text-white flex flex-col p-6">
         <h2 className="text-2xl font-bold mb-6 text-center">Admin Dashboard</h2>
         <nav className="space-y-4">
-          <button
-            className={`flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition ${selectedSection === "alumni" && "bg-gray-700"}`}
-            onClick={() => setSelectedSection("alumni")}
-          >
+          <button onClick={() => setSelectedSection("alumni")} className={`flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition ${selectedSection === "alumni" && "bg-gray-700"}`}>
             <FaUserCheck />
             <span>Manage Alumni</span>
           </button>
-          <button
-            className={`flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition ${selectedSection === "jobs" && "bg-gray-700"}`}
-            onClick={() => setSelectedSection("jobs")}
-          >
+          <button onClick={() => setSelectedSection("jobs")} className={`flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition ${selectedSection === "jobs" && "bg-gray-700"}`}>
             <FaBriefcase />
-            <span>Manage Jobs</span>
+            <span>Pending Jobs</span>
           </button>
-          <button className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition">
-            <FaCalendarAlt />
-            <span>Post Events</span>
+          <button onClick={() => setSelectedSection("approvedJobs")} className={`flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition ${selectedSection === "approvedJobs" && "bg-gray-700"}`}>
+            <FaBriefcase />
+            <span>Approved Jobs</span>
           </button>
-          <button className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition">
-            <FaTasks />
-            <span>Manage Activities</span>
-          </button>
-          <button className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition">
-            <FaGraduationCap />
-            <span>Scholarships</span>
-          </button>
+          <Link to="/aluminidirectory" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition">
+            <FaAddressBook />
+            <span>Alumni Directory</span>
+          </Link>
         </nav>
-
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="mt-auto flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition bg-red-500"
-        >
+        <button onClick={handleLogout} className="mt-auto flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition bg-red-500">
           <FaSignOutAlt />
           <span>Logout</span>
         </button>
@@ -93,12 +71,10 @@ function AdminDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 p-10">
-        {selectedSection === "alumni" ? (
+        {/* Pending Alumni Section */}
+        {selectedSection === "alumni" && (
           <>
             <h1 className="text-3xl font-bold text-gray-800">Manage Alumni Requests</h1>
-            <p className="mt-2 text-gray-600">Review and approve/reject alumni registrations.</p>
-
-            {/* Pending Alumni List */}
             <div className="mt-6 bg-white shadow-md rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Pending Applications</h2>
               <table className="w-full border-collapse border border-gray-300">
@@ -117,10 +93,7 @@ function AdminDashboard() {
                       <td className="p-2 border">{alumni.email}</td>
                       <td className="p-2 border">{alumni.batch}</td>
                       <td className="p-2 border">
-                        <Link
-                          to={`/alumni-details/${alumni._id}`}
-                          className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600"
-                        >
+                        <Link to={`/alumni-details/${alumni._id}`} className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600">
                           View Details
                         </Link>
                       </td>
@@ -130,12 +103,12 @@ function AdminDashboard() {
               </table>
             </div>
           </>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold text-gray-800">Manage Jobs</h1>
-            <p className="mt-2 text-gray-600">Review and approve/reject job postings.</p>
+        )}
 
-            {/* Pending Jobs List */}
+        {/* Pending Jobs Section */}
+        {selectedSection === "jobs" && (
+          <>
+            <h1 className="text-3xl font-bold text-gray-800">Pending Jobs</h1>
             <div className="mt-6 bg-white shadow-md rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Pending Job Applications</h2>
               <table className="w-full border-collapse border border-gray-300">
@@ -154,10 +127,7 @@ function AdminDashboard() {
                       <td className="p-2 border">{job.companyName}</td>
                       <td className="p-2 border">{job.postedByName}</td>
                       <td className="p-2 border">
-                        <Link
-                          to={`/job/${job._id}`}
-                          className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600"
-                        >
+                        <Link to={`/job/${job._id}`} className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600">
                           View Details
                         </Link>
                       </td>
@@ -166,10 +136,15 @@ function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          </>
+        )}
 
-            {/* Approved Jobs List */}
+        {/* Approved Jobs Section */}
+        {selectedSection === "approvedJobs" && (
+          <>
+            <h1 className="text-3xl font-bold text-gray-800">Approved Jobs</h1>
             <div className="mt-6 bg-white shadow-md rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Approved Jobs</h2>
+              <h2 className="text-xl font-semibold mb-4">List of Approved Jobs</h2>
               <table className="w-full border-collapse border border-gray-300">
                 <thead>
                   <tr className="bg-gray-200">

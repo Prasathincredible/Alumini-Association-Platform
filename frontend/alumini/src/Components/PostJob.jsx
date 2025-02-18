@@ -40,7 +40,7 @@ const PostJob = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/postjobs", {
+      const response = await axios.post("http://localhost:3000/job/postjobs", {
         ...jobData,
         skillsRequired: jobData.skillsRequired.split(","),
         postedBy: user._id,

@@ -9,13 +9,13 @@ const JobDetails = () => {
   const [job, setJob] = useState(null);
   const [applied, setApplied] = useState(false);
   const { user } = useContext(UserContext);
-  const{role}=useContext(UserContext); // Get logged-in user details
+  const { role } = useContext(UserContext); // Get logged-in user details
 
   // Fetch job details
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/jobs/${id}`);
+        const response = await axios.get(`http://localhost:3000/job/jobs/${id}`);
         setJob(response.data);
 
         // Check if the logged-in user has applied
@@ -43,7 +43,7 @@ const JobDetails = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/apply", {
+      await axios.post("http://localhost:3000/job/apply", {
         jobId: id,
         userId: user._id,
         userName: user.userName,
@@ -64,7 +64,7 @@ const JobDetails = () => {
   // Handle Job Approval (Admin)
   const handleApprove = async () => {
     try {
-      await axios.put(`http://localhost:3000/approve-job/${id}`);
+      await axios.put(`http://localhost:3000/job/approve-job/${id}`);
       setJob((prevJob) => ({ ...prevJob, status: "approved" }));
       alert("Job approved successfully!");
     } catch (error) {
@@ -76,7 +76,7 @@ const JobDetails = () => {
   // Handle Job Rejection (Admin)
   const handleReject = async () => {
     try {
-      await axios.delete(`http://localhost:3000/delete-job/${id}`);
+      await axios.delete(`http://localhost:3000/job/delete-job/${id}`);
       alert("Job rejected and deleted.");
       navigate("/admin/jobs"); // Redirect admin after rejecting the job
     } catch (error) {
@@ -102,8 +102,8 @@ const JobDetails = () => {
         </span>
       </p>
 
-      {/* Show Apply button for alumni */}
-      {role === "user" && (
+      {/* Show Apply button for students or users */}
+      {(role === "student" || role === "user") && (
         <button
           onClick={handleApply}
           className={`py-2 px-4 rounded-md mt-4 ${applied ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700 text-white"}`}

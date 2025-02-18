@@ -14,7 +14,7 @@ function AppliedUsersList() {
     if (!user) return; // Ensure user is logged in
 
     axios
-      .get(`http://localhost:3000/job/${jobId}/applied-users?userId=${user._id}`)
+      .get(`http://localhost:3000/job/job/${jobId}/applied-users?userId=${user._id}`)
       .then((res) => {
         setAppliedUsers(res.data.appliedUsers);
       })
@@ -22,6 +22,8 @@ function AppliedUsersList() {
         setError(err.response?.data?.error || "Error fetching applied users");
       });
   }, [jobId, user]);
+
+  
 
   // Function to navigate to user profile
   const handleUserClick = (userName) => {

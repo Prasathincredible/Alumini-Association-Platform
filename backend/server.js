@@ -2,8 +2,10 @@ const express=require('express');
 const mongoose=require('mongoose');
 const AluminiProfile=require('./models/alumini');
 const AdminProfile=require('./models/admin');
-const Job=require('../backend/models/job');
+const Student=require('../backend/models/student');
 const authenticateToken=require('./middlewares/authenticateToken');
+const jobRoutes=require('./routes/jobRoutes');
+const aluminiRoutes=require('./routes/aluminiRoutes');
 const Razorpay = require("razorpay");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -11,7 +13,6 @@ const app=express();
 require("dotenv").config();
 const cors=require('cors');
 const upload=require('./config/multer');
-
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/alumini')
@@ -69,35 +70,83 @@ app.post("/signup", upload.fields([{ name: "avatar" }, { name: "marksheet" }]), 
 });
 
 
+
+app.post("/students/signup", upload.single("avatar"), async (req, res) => {
+  try {
+    const { name, email, rollNo, batch, degree, department, year, password } = req.body;
+
+    const existingStudent = await Student.findOne({ email });
+    if (existingStudent) {
+      return res.status(400).json({ message: "Student already registered!" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const avatarUrl = req.file ? req.file.path : "";
+    const newStudent = new Student({
+      name,
+      email,
+      rollNo,
+      batch,
+      degree,
+      department,
+      year,
+      avatar: avatarUrl, // Store Cloudinary URL in database
+      role: "student",
+      password: hashedPassword,
+    });
+
+    await newStudent.save();
+    res.status(201).json({ message: "Student registered successfully!", student: newStudent });
+  } catch (error) {
+    console.error("Error signing up student:", error);
+    res.status(500).json({ message: "Server error, please try again!" });
+  }
+});
+
+
 app.post("/login", async (req, res) => {
-  const { userName, password } = req.body;
+  const { userInput, password } = req.body;  // userInput instead of email and userName
 
   try {
-    let user = await AdminProfile.findOne({ name: userName });
-    let role = "admin";
+    let user;
+    let role;
 
-    if (!user) {
-      user = await AluminiProfile.findOne({ userName });
-      role = "user";
+    // Check if the userInput is an email or username
+    if (userInput.includes('@')) {
+      // If it's an email, check against AlumniProfile and Student models
+      user = await AluminiProfile.findOne({ email: userInput });
+      if (user) {
+        role = "user"; // Alumni role
+      } else {
+        user = await Student.findOne({ email: userInput });
+        if (user) {
+          role = "student";
+        }
+      }
+    } else {
+      // If it's a username, check against AdminProfile
+      user = await AdminProfile.findOne({ name: userInput });
+      if (user) {
+        role = "admin";
+      }
     }
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    // If the user is an alumni, check approval status
     if (role === "user" && user.status !== "approved") {
       return res.status(403).json({ message: "Your account is pending approval." });
     }
 
-    // Verify password
+    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token with user details
-    const token = jwt.sign({ id: user._id, userName, role }, process.env.JWT_SECRET);
+    // Generate JWT Token
+    const token = jwt.sign({ id: user._id, email: user.email, role }, process.env.JWT_SECRET);
 
     res.json({ message: "User logged in successfully", token, user, role });
 
@@ -107,22 +156,34 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-
   app.get('/profile',authenticateToken, async(req,res)=>{
     try
     {
-        const userName=await AluminiProfile.findOne({userName:req.user.userName})
+        const email=await AluminiProfile.findOne({email:req.user.email})
         //console.log(userName);
-        if(!userName)
+        if(!email)
         {
             return res.status(404).json({message:"User not found"});
         }
-       res.json(userName);
+       res.json(email);
     }catch(error)
     {
        res.status(401).json({message:"Unauthorised"}); 
     }
+});
+
+
+app.get('/student_profile', authenticateToken, async (req, res) => {
+  try {
+    const student = await Student.findOne({email:req.user.email}).select('-password -role -appliedJobs -connectedAlumni');
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+    res.json(student); // Send student profile data
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 
@@ -139,25 +200,6 @@ app.get("/profile/:userName", async (req, res) => {
   } catch (err) {
     console.error("Error fetching user:", err);
     res.status(500).json({ message: "Server error" });
-  }
-});
-
-
-app.get("/alumni", async (req, res) => {
-  try {
-    const { name, industry, role, location, batch } = req.query;
-    let query = {};
-
-    if (name) query.userName = { $regex: name, $options: "i" };
-    if (industry) query.industry = industry;
-    if (role) query.role = role;
-    if (location) query.location = location;
-    if (batch) query.batch = batch;
-
-    const alumni = await AluminiProfile.find(query);
-    res.json(alumni);
-  } catch (err) {
-    res.status(500).json({ error: "Server Error" });
   }
 });
 
@@ -192,107 +234,7 @@ app.post("/donate", async (req, res) => {
   }
 });
 
-app.post("/postjobs", async(req, res)=>{
-  try{
-    const {title, companyName, location, jobType, skillsRequired, salary, description,deadline,postedBy, postedByName}=req.body;
-    if(!title || !companyName || !location || !description || !deadline){
-      return res.status(400).json({message: "Please fill in all required fields"});
-    }
 
-    const newJob=new Job({
-      title,
-      companyName,
-      location,
-      jobType,
-      skillsRequired,
-      salary,
-      description,
-      deadline,
-      postedBy,
-      postedByName
-    });
-
-    await newJob.save();
-
-    res.status(201).json({message: "Job Posted successfully", job:newJob});
-  }catch(error){
-    console.error("Error posting job:", error);
-    res.status(500).json({message:"Server error"});
-  }
-});
-
-
-app.get("/jobs", async (req, res) => {
-  try {
-    const jobs = await Job.find({ status: "approved" }); // Filter only approved jobs
-    res.json(jobs);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching jobs" });
-  }
-});
-
-
-
-app.get("/jobs/:id", async(req,res)=>{
-  try{
-    
-    const job=await Job.findById(req.params.id);
-    if(!job) return res.status(404).json({error:"Job not found"});
-    res.json(job);
-  }catch(error){
-    res.status(500).json({error:"Error fetching job details"});
-  }
-});
-
-
-
-
-app.post("/apply", async (req, res) => {
-  try {
-    const { jobId, userId, userName } = req.body;
-
-    const job = await Job.findById(jobId);
-
-    if (!job) {
-      return res.status(404).json({ error: "Job not found" });
-    }
-
-    if (job.appliedUsers.some(user => user.userId.toString() === userId)) {
-      return res.status(400).json({ error: "User already applied" });
-    }
-    job.appliedUsers.push({userId, userName});
-    await job.save();
-
-    res.json({ message: "Successfully applied", appliedUsers: job.appliedUsers });
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-
-
-
-
-app.get("/job/:jobId/applied-users", async (req, res) => {
-  try {
-    const { jobId } = req.params;
-    const { userId } = req.query; // Get the current logged-in user ID
-
-    const job = await Job.findById(jobId);
-
-    if (!job) return res.status(404).json({ error: "Job not found" });
-
-    // Check if the logged-in user is the one who posted the job
-    if (job.postedBy.toString() !== userId) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
-
-    // Return the applied users
-    res.status(200).json({ appliedUsers: job.appliedUsers });
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching applied users" });
-  }
-});
 
 
 app.get("/admin/pending-alumni", async (req, res) => {
@@ -301,93 +243,10 @@ app.get("/admin/pending-alumni", async (req, res) => {
 });
 
 
-app.put("/alumni/:id/status", async (req, res) => {
-  try {
-    const { status } = req.body;
-    
-    if (!["approved", "rejected"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
-
-    const updatedAlumni = await AluminiProfile.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
-    if (!updatedAlumni) {
-      return res.status(404).json({ message: "Alumni not found" });
-    }
-
-    res.json({ message: `Alumni has been ${status}`, alumni: updatedAlumni });
-  } catch (error) {
-    console.error("Error updating alumni status:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-
-
-app.get("/alumni/:id", async (req, res) => {
-  try {
-    const alumni = await AluminiProfile.findById(req.params.id);
-    if (!alumni) {
-      return res.status(404).json({ message: "Alumni not found" });
-    }
-    res.json(alumni);
-  } catch (error) {
-    console.error("Error fetching alumni details:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-
-
-app.get("/pending-jobs", async (req, res) => {
-  try {
-
-    const pendingJobs = await Job.find({ status: "pending" });
-    res.status(200).json(pendingJobs);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching pending jobs", error });
-  }
-});
-
-
-app.get("/approved-jobs", async (req, res) => {
-  try {
-    const approvedJobs = await Job.find({ status: "approved" });
-    res.status(200).json(approvedJobs);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching approved jobs", error });
-  }
-});
-
-
-app.put("/approve-job/:id", async (req, res) => {
-  try {
-    const job = await Job.findByIdAndUpdate(req.params.id, { status: "approved" }, { new: true });
-    if (!job) return res.status(404).json({ message: "Job not found" });
-    res.status(200).json({ message: "Job approved successfully", job });
-  } catch (error) {
-    res.status(500).json({ message: "Error approving job", error });
-  }
-});
-
-
-
-app.delete("/delete-job/:id", async (req, res) => {
-  try {
-    const job = await Job.findByIdAndDelete(req.params.id);
-    if (!job) return res.status(404).json({ message: "Job not found" });
-    res.status(200).json({ message: "Job deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting job", error });
-  }
-});
-
-
+app.use('/job', jobRoutes);
+app.use('/alumni',aluminiRoutes);
 app.use(authenticateToken);
+
 
 app.listen(3000,()=>{
     console.log("server connected");

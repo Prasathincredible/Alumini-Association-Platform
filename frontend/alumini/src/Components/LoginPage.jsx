@@ -1,17 +1,14 @@
-import { useState, useContext} from "react";
+import { useState, useContext } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import {UserContext} from '../contexts/UserContext';
-
+import { UserContext } from "../contexts/UserContext";
 
 const LoginPage = () => {
-
-  const {loginUser} =useContext(UserContext);
-  const [formData, setFormData] = useState({ userName: "", password: "" });
+  const { loginUser } = useContext(UserContext);
+  const [formData, setFormData] = useState({ userInput: "", password: "" }); // single input field for userInput
   const [error, setError] = useState("");
-  const navigate=useNavigate();
-  
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,8 +18,8 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.userName || !formData.password) {
-      setError("Please enter both username and password.");
+    if (!formData.userInput || !formData.password) {
+      setError("Please enter both email/username and password.");
       return;
     }
 
@@ -30,17 +27,20 @@ const LoginPage = () => {
       const res = await axios.post("http://localhost:3000/login", formData);
 
       Swal.fire({
-        title: 'Success!',
-        text: 'Operation completed',
-        icon: 'success'
+        title: "Success!",
+        text: "Operation completed",
+        icon: "success",
       });
 
-      const {user,token,role}=res.data;
+      const { user, token, role } = res.data;
 
-      loginUser(user,token,role);
-      
-      if (res.data.role === "admin") {
+      loginUser(user, token, role);
+
+      // Navigate based on the user role
+      if (role === "admin") {
         navigate("/admin_dashboard");
+      } else if (role === "student") {
+        navigate("/student_dashboard");
       } else {
         navigate("/alumini_dashboard");
       }
@@ -57,13 +57,14 @@ const LoginPage = () => {
         {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* User Input (email or username) */}
           <div className="relative">
             <FaUser className="absolute left-3 top-3 text-gray-500" />
             <input
               type="text"
-              name="userName"
-              placeholder="Username"
-              value={formData.userName}
+              name="userInput" // single field for email or username
+              placeholder="Email or Username"
+              value={formData.userInput}
               onChange={handleChange}
               className="w-full px-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             />

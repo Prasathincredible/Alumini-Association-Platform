@@ -16,6 +16,10 @@ import ApplyJob from './Components/ApplyJobs';
 import JobDetails from './Components/JobDetails';
 import AppliedUsersList from './Components/AppliedUsersList';
 import AlumniDetails from './Components/AluminiDetails';
+import StudentSignUp from './Components/StudentSignUp';
+import StudentDashBoard from './Components/StudentDashBoard';
+import StudentProfile from './Components/StudentProfile';
+
 
 function App() {
   return (
@@ -36,6 +40,9 @@ function App() {
           <Route path='/job/:id' element={<JobDetails/>}/>
           <Route path='/job/:jobId/applied-users' element={<AppliedUsersList/>}></Route>
           <Route path='/alumni-details/:id' element={<AlumniDetails/>}></Route>
+          <Route path='/student_signup' element={<StudentSignUp/>}></Route>
+          <Route path='/student_dashboard' element={<StudentDashBoard/>}></Route>
+          <Route path='/student_profile' element={<StudentProfile/>}></Route>
         </Routes>
         </UserProvider>
     </div>

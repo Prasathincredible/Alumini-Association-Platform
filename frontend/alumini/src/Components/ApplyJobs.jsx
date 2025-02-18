@@ -11,7 +11,7 @@ const ApplyJob = () => {
     // Fetch all jobs from the backend
     const fetchJobs = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/jobs");
+        const response = await axios.get("http://localhost:3000/job/jobs");
         setJobs(response.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);
