@@ -52,7 +52,7 @@ const JobSchema = new mongoose.Schema({
   },
   companyWebsite: {
     type: String,
-    required: false, // Optional, but you can make it required if needed
+    required: true, // Optional, but you can make it required if needed
     match: [/^https?:\/\/[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, 'Please provide a valid URL'], // Simple URL validation
   },
 });

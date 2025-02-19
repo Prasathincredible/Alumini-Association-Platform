@@ -5,7 +5,7 @@ router.use(express.json())
 
 router.post("/postjobs", async(req, res)=>{
     try{
-      const {title, companyName, location, jobType, skillsRequired, salary, description,deadline,postedBy, postedByName}=req.body;
+      const {title, companyName, location, jobType, skillsRequired, salary, description,deadline, companyWebsite, postedBy, postedByName}=req.body;
   
       console.log(title);
       if(!title || !companyName || !location || !description || !deadline){
@@ -21,6 +21,7 @@ router.post("/postjobs", async(req, res)=>{
         salary,
         description,
         deadline,
+        companyWebsite,
         postedBy,
         postedByName
       });

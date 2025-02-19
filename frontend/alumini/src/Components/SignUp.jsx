@@ -54,7 +54,7 @@ const Signup = () => {
       });
   
       alert("Signup successful! Waiting for admin approval.");
-      navigate("/"); // Redirect to login page
+      navigate("/login"); // Redirect to login page
     } catch (error) {
       alert("Signup failed. Please try again.");
     }

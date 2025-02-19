@@ -19,6 +19,7 @@ import AlumniDetails from './Components/AluminiDetails';
 import StudentSignUp from './Components/StudentSignUp';
 import StudentDashBoard from './Components/StudentDashBoard';
 import StudentProfile from './Components/StudentProfile';
+import HomePage from './Components/HomePage';
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
     <div className="App">
       <UserProvider>
         <Routes>
-          <Route path='/' element={<LoginPage/>}></Route>
+          <Route path='/login' element={<LoginPage/>}></Route>
           <Route path='/signup' element={<SignUp/>}></Route>
           <Route path='/profile' element={<ProfilePage/>}></Route>
           <Route path='/profile/:userName' element={<UserProfile/>}></Route>
@@ -43,6 +44,8 @@ function App() {
           <Route path='/student_signup' element={<StudentSignUp/>}></Route>
           <Route path='/student_dashboard' element={<StudentDashBoard/>}></Route>
           <Route path='/student_profile' element={<StudentProfile/>}></Route>
+          <Route path='/' element={<HomePage/>}></Route>
+          
         </Routes>
         </UserProvider>
     </div>

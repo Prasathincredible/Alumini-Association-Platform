@@ -5,22 +5,23 @@ router.use(express.json());
 
 
 router.get("/", async (req, res) => {
-    try {
+  try {
       const { name, industry, role, location, batch } = req.query;
-      let query = {};
-  
+      let query = { status: "approved" }; // Only fetch approved alumni
+
       if (name) query.userName = { $regex: name, $options: "i" };
       if (industry) query.industry = industry;
       if (role) query.role = role;
       if (location) query.location = location;
       if (batch) query.batch = batch;
-  
+
       const alumni = await AluminiProfile.find(query);
       res.json(alumni);
-    } catch (err) {
+  } catch (err) {
       res.status(500).json({ error: "Server Error" });
-    }
-  });
+  }
+});
+
 
 
 

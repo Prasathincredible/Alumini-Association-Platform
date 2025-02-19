@@ -9,7 +9,7 @@ function StudentDashBoard() {
 
   const handleLogout = () => {
     logoutUser();
-    navigate("/");
+    navigate("/login");
   };
 
   return (

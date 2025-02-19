@@ -14,7 +14,7 @@ function AlumniDashboard() {
 
   const handleLogout = () => {
     logoutUser(); // Clear user session
-    navigate("/", { replace: true }); 
+    navigate("/login", { replace: true }); 
   };
 
   return (

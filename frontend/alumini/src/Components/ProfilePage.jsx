@@ -19,7 +19,6 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("authToken");
-      console.log(token);
       try {
         const response = await axios.get("http://localhost:3000/profile", {
           headers: { Authorization: `Bearer ${token}` },
@@ -59,21 +58,20 @@ const ProfilePage = () => {
     batch,
     department,
     industry,
-    company, // New field
+    company,
   } = alumni;
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-100 to-gray-300 px-6 py-10">
-      <div className="bg-white shadow-2xl rounded-3xl max-w-4xl w-full p-10">
-        {/* Profile Header */}
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
+      <div className="bg-white shadow-xl rounded-xl max-w-4xl w-full p-8 sm:p-10">
         <div className="flex flex-col items-center text-center">
           <Avatar
             src={avatar}
             alt="Profile"
-            sx={{ width: 130, height: 130, border: "4px solid #3b82f6" }}
+            sx={{ width: 120, height: 120, border: "4px solid #2563eb" }}
           />
-          <h1 className="text-4xl font-bold text-gray-800 mt-4">{userName}</h1>
-          <p className="text-lg text-gray-600 mt-2 flex items-center">
+          <h1 className="text-3xl font-bold text-gray-800 mt-4">{userName}</h1>
+          <p className="text-lg text-gray-600 mt-1 flex items-center">
             <WorkOutline className="text-blue-500 mr-2" /> {industry}
           </p>
           {company && (
@@ -83,72 +81,66 @@ const ProfilePage = () => {
           )}
         </div>
 
-        {/* Profile Details */}
-        <div className="mt-10 space-y-6">
-          {/* Batch, Department & Company */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-gray-800">
-            <div className="flex items-center space-x-4 bg-gray-100 p-4 rounded-lg">
-              <School className="text-blue-600" />
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex items-center space-x-4 bg-gray-200 p-4 rounded-lg">
+            <School className="text-blue-600" />
+            <p>
+              <span className="font-semibold">Batch:</span> {batch}
+            </p>
+          </div>
+          <div className="flex items-center space-x-4 bg-gray-200 p-4 rounded-lg">
+            <Business className="text-blue-600" />
+            <p>
+              <span className="font-semibold">Department:</span> {department}
+            </p>
+          </div>
+          {company && (
+            <div className="flex items-center space-x-4 bg-gray-200 p-4 rounded-lg">
+              <Apartment className="text-blue-600" />
               <p>
-                <span className="font-semibold">Batch:</span> {batch}
+                <span className="font-semibold">Company:</span> {company}
               </p>
             </div>
-            <div className="flex items-center space-x-4 bg-gray-100 p-4 rounded-lg">
-              <Business className="text-blue-600" />
-              <p>
-                <span className="font-semibold">Department:</span> {department}
-              </p>
-            </div>
-            {company && (
-              <div className="flex items-center space-x-4 bg-gray-100 p-4 rounded-lg">
-                <Apartment className="text-blue-600" />
-                <p>
-                  <span className="font-semibold">Company:</span> {company}
-                </p>
-              </div>
-            )}
-          </div>
+          )}
+        </div>
 
-          {/* Social Links */}
-          <div className="space-y-4">
-            {linkedin && (
-              <a
-                href={linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-4 p-4 bg-blue-100 hover:bg-blue-200 rounded-lg shadow-md transition transform hover:scale-105"
-              >
-                <LinkedIn className="text-blue-600" />
-                <span className="font-semibold text-blue-600 hover:underline">
-                  LinkedIn Profile
-                </span>
-              </a>
-            )}
-            {github && (
-              <a
-                href={github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-4 p-4 bg-gray-200 hover:bg-gray-300 rounded-lg shadow-md transition transform hover:scale-105"
-              >
-                <GitHub className="text-gray-800" />
-                <span className="font-semibold text-gray-800 hover:underline">
-                  GitHub Profile
-                </span>
-              </a>
-            )}
-          </div>
+        <div className="mt-6 space-y-4">
+          {linkedin && (
+            <a
+              href={linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-4 p-4 bg-blue-100 hover:bg-blue-200 rounded-lg shadow-md transition transform hover:scale-105"
+            >
+              <LinkedIn className="text-blue-600" />
+              <span className="font-semibold text-blue-600 hover:underline">
+                LinkedIn Profile
+              </span>
+            </a>
+          )}
+          {github && (
+            <a
+              href={github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-4 p-4 bg-gray-200 hover:bg-gray-300 rounded-lg shadow-md transition transform hover:scale-105"
+            >
+              <GitHub className="text-gray-800" />
+              <span className="font-semibold text-gray-800 hover:underline">
+                GitHub Profile
+              </span>
+            </a>
+          )}
+        </div>
 
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex items-center space-x-4 bg-red-100 p-4 rounded-lg shadow-md transition transform hover:scale-105">
-              <Email className="text-red-500" />
-              <p className="font-semibold">{email}</p>
-            </div>
-            <div className="flex items-center space-x-4 bg-green-100 p-4 rounded-lg shadow-md transition transform hover:scale-105">
-              <Phone className="text-green-500" />
-              <p className="font-semibold">{phone}</p>
-            </div>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="flex items-center space-x-4 bg-red-100 p-4 rounded-lg shadow-md transition transform hover:scale-105">
+            <Email className="text-red-500" />
+            <p className="font-semibold">{email}</p>
+          </div>
+          <div className="flex items-center space-x-4 bg-green-100 p-4 rounded-lg shadow-md transition transform hover:scale-105">
+            <Phone className="text-green-500" />
+            <p className="font-semibold">{phone}</p>
           </div>
         </div>
       </div>
