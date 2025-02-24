@@ -6,6 +6,7 @@ const Student=require('../backend/models/student');
 const authenticateToken=require('./middlewares/authenticateToken');
 const jobRoutes=require('./routes/jobRoutes');
 const aluminiRoutes=require('./routes/aluminiRoutes');
+const eventRoutes=require('./routes/event');
 const Razorpay = require("razorpay");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -13,6 +14,7 @@ const app=express();
 require("dotenv").config();
 const cors=require('cors');
 const upload=require('./config/multer');
+
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/alumini')
@@ -207,8 +209,6 @@ app.get("/profile/:userName", async (req, res) => {
 app.post("/donate", async (req, res) => {
   try {
   
-    console.log(req.body);
-
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -236,7 +236,6 @@ app.post("/donate", async (req, res) => {
 
 
 
-
 app.get("/admin/pending-alumni", async (req, res) => {
   const pendingAlumni = await AluminiProfile.find({ status: "pending" });
   res.json(pendingAlumni);
@@ -245,6 +244,7 @@ app.get("/admin/pending-alumni", async (req, res) => {
 
 app.use('/job', jobRoutes);
 app.use('/alumni',aluminiRoutes);
+app.use('/event',eventRoutes);
 app.use(authenticateToken);
 
 

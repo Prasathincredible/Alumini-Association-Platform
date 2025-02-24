@@ -10,6 +10,7 @@ export const UserProvider = ({ children }) => {
 
   // Function to log in user and store token & role
   const loginUser = (userData, token, userRole) => {
+    console.log(userRole);
     setUser(userData);
     setRole(userRole); // Set role
     localStorage.setItem("authToken", token);

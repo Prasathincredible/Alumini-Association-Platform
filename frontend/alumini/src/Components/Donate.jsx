@@ -7,7 +7,7 @@ const Donate = () => {
 
     const handlePayment = async () => {
         try {
-            const { data } = await axios.post("http://localhost:3000/job/donate", {
+            const { data } = await axios.post("http://localhost:3000/donate", {
                 amount: 1, // ₹1
                 currency: "INR",
             });
