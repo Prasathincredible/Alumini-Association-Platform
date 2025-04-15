@@ -73,7 +73,7 @@ function StudentDashBoard() {
           <FaSearch className="text-purple-600 text-4xl mb-4" />
           <h2 className="text-xl font-semibold text-center mb-4">Search for Alumni</h2>
           <p className="text-gray-600 text-center mb-4">Search the alumni directory and connect with former students.</p>
-          <button className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg transition duration-300">
+          <button onClick={() => navigate('/aluminidirectory')} className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg transition duration-300">
             Search Alumni
           </button>
         </div>

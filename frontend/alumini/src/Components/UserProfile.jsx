@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext"; 
 import axios from "axios";
-import { Avatar, Tooltip } from "@mui/material";
+import { Avatar } from "@mui/material";
 import {
   LinkedIn,
   GitHub,
@@ -13,10 +14,14 @@ import {
 } from "@mui/icons-material";
 
 const UserProfile = () => {
-  const { userName } = useParams(); // Get the userName from the URL
+  const { userName } = useParams(); 
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { role } = useContext(UserContext); 
+  const { user } = useContext(UserContext); // Get logged-in user
+  const navigate = useNavigate(); 
 
+  // Fetch user profile information
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -47,6 +52,22 @@ const UserProfile = () => {
     );
 
   const { avatar, userName: name, linkedin, github, email, phone, batch, department, industry } = userProfile;
+
+  // Chat button functionality (if the logged-in user is a student)
+  const handleChatClick = async() => {
+    if (role === "student") {
+      try {
+        const response = await axios.post("http://localhost:3000/conversations", {
+          sender: user.name,
+          receiver: name,
+        });
+        console.log("Conversation created:", response.data);
+        navigate(`/chat/${name}`); // Navigate to chat page
+      } catch (error) {
+        console.error("Error creating conversation:", error);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-100 to-gray-300 px-6 py-10">
@@ -123,6 +144,19 @@ const UserProfile = () => {
               <p className="font-semibold">{phone}</p>
             </div>
           </div>
+
+          {/* Conditionally render Chat button if role is student */}
+          {role === "student" && (
+      <div className="mt-6 flex justify-center">
+    <button
+      onClick={handleChatClick}
+      className="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
+    >
+      StartChat 
+    </button>
+  </div>
+)}
+
         </div>
       </div>
     </div>

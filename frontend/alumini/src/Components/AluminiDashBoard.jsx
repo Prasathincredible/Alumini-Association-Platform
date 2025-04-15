@@ -69,10 +69,10 @@ function AlumniDashboard() {
               <span>Networking</span>
             </Link>
 
-            <Link to="/events" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
+           {/* <Link to="/events" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
               <FaCalendarAlt />
               <span>Event Management</span>
-            </Link>
+            </Link>*/}
 
             <Link to="/success-stories" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
               <FaTrophy />
