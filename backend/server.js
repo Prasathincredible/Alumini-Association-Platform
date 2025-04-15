@@ -11,6 +11,7 @@ const jobRoutes=require('./routes/jobRoutes');
 const aluminiRoutes=require('./routes/aluminiRoutes');
 const eventRoutes=require('./routes/event');
 const conversationRoutes=require('./routes/conversations');
+const messageRoutes=require('./routes/messages');
 const Razorpay = require("razorpay");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -30,19 +31,22 @@ const io=new Server(server,{
 const onlineUsers=new Map();
 
 io.on("connection",(socket)=>{
-  console.log("New user connected",socket.id);
+  //console.log("New user connected",socket.id);
 
 socket.on("join",(userId)=>{
   onlineUsers.set(userId,socket.id);
-  console.log(`User ${userId} joined`);
+  //console.log(`User ${userId} joined`);
 });
 
-socket.on("sendMessage",async ({senderName,receiverName,text})=>{
+socket.on("sendMessage", async ({senderName,receiverName,text})=>{
+  console.log("Message received:", { senderName, receiverName, text });
   const newMessage=new Message({
     sender:senderName,
     receiver:receiverName,
     text,  
   });
+
+  //console.log(newMessage);
 
   await newMessage.save();
 
@@ -53,7 +57,7 @@ socket.on("sendMessage",async ({senderName,receiverName,text})=>{
 });
 
 socket.on("disconnect",()=>{
-  console.log("A user disconnected",socket.id);
+  //console.log("A user disconnected",socket.id);
   onlineUsers.forEach((value,key)=>{
     if(value===socket.id){
       onlineUsers.delete(key);
@@ -291,9 +295,10 @@ app.use('/job', jobRoutes);
 app.use('/alumni',aluminiRoutes);
 app.use('/event',eventRoutes);
 app.use('/conversations',conversationRoutes);
+app.use('/messages',messageRoutes);
 app.use(authenticateToken);
 
 
-app.listen(3000,()=>{
+server.listen(3000,()=>{
     console.log("server connected");
 })
