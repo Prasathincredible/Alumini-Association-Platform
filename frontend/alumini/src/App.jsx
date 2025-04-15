@@ -22,6 +22,7 @@ import StudentProfile from './Components/StudentProfile';
 import HomePage from './Components/HomePage';
 import CreateEvent from './Components/CreateEvent';
 import Chat from './Components/Chat';
+import Networking from './Components/Networking';
 
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
           <Route path='/' element={<HomePage/>}></Route>
           <Route path='/create_event' element={<CreateEvent/>}></Route>
           <Route path='/chat/:receiverName' element={<Chat/>}></Route>
+          <Route path="/networking" element={<Networking/>}></Route>
           
         </Routes>
         </UserProvider>

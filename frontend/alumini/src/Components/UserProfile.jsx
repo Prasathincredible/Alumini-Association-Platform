@@ -58,7 +58,7 @@ const UserProfile = () => {
     if (role === "student") {
       try {
         const response = await axios.post("http://localhost:3000/conversations", {
-          sender: user.name,
+          sender: user.userName,
           receiver: name,
         });
         console.log("Conversation created:", response.data);
