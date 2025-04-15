@@ -1,12 +1,16 @@
 const express=require('express');
+const http=require('http');
+const {Server}=require('socket.io');
 const mongoose=require('mongoose');
 const AluminiProfile=require('./models/alumini');
 const AdminProfile=require('./models/admin');
+const Message=require('./models/messages');
 const Student=require('../backend/models/student');
 const authenticateToken=require('./middlewares/authenticateToken');
 const jobRoutes=require('./routes/jobRoutes');
 const aluminiRoutes=require('./routes/aluminiRoutes');
 const eventRoutes=require('./routes/event');
+const conversationRoutes=require('./routes/conversations');
 const Razorpay = require("razorpay");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -14,7 +18,49 @@ const app=express();
 require("dotenv").config();
 const cors=require('cors');
 const upload=require('./config/multer');
+const server=http.createServer(app);
+const io=new Server(server,{
+  cors:{
+    origin:"http://localhost:5173",
+    allowedHeaders:['Content-Type', 'Authorization'],
+    methods:["GET","POST"],
+  }
+})
 
+const onlineUsers=new Map();
+
+io.on("connection",(socket)=>{
+  console.log("New user connected",socket.id);
+
+socket.on("join",(userId)=>{
+  onlineUsers.set(userId,socket.id);
+  console.log(`User ${userId} joined`);
+});
+
+socket.on("sendMessage",async ({senderName,receiverName,text})=>{
+  const newMessage=new Message({
+    sender:senderName,
+    receiver:receiverName,
+    text,  
+  });
+
+  await newMessage.save();
+
+  const receiverSocket=onlineUsers.get(receiverName);
+  if(receiverSocket){
+    io.to(receiverSocket).emit("receiverMessage",newMessage);
+  }
+});
+
+socket.on("disconnect",()=>{
+  console.log("A user disconnected",socket.id);
+  onlineUsers.forEach((value,key)=>{
+    if(value===socket.id){
+      onlineUsers.delete(key);
+    }
+  })
+})
+});
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/alumini')
@@ -27,13 +73,11 @@ app.use(cors());
 app.use(express.json());
 
 
-
-
 app.post("/signup", upload.fields([{ name: "avatar" }, { name: "marksheet" }]), async (req, res) => {
   try {
     const { userName, email, password, batch, department, industry, company, position, phone, linkedin, github } = req.body;
 
-    //console.log(userName);
+    console.log(userName);
     const avatar = req.files["avatar"] ? req.files["avatar"][0].path : null;
     const marksheet = req.files["marksheet"] ? req.files["marksheet"][0].path : null;
 
@@ -238,6 +282,7 @@ app.post("/donate", async (req, res) => {
 
 app.get("/admin/pending-alumni", async (req, res) => {
   const pendingAlumni = await AluminiProfile.find({ status: "pending" });
+  //console.log(pendingAlumni);
   res.json(pendingAlumni);
 });
 
@@ -245,6 +290,7 @@ app.get("/admin/pending-alumni", async (req, res) => {
 app.use('/job', jobRoutes);
 app.use('/alumni',aluminiRoutes);
 app.use('/event',eventRoutes);
+app.use('/conversations',conversationRoutes);
 app.use(authenticateToken);
 
 
