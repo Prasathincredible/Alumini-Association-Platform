@@ -63,7 +63,7 @@ function StudentDashBoard() {
           <FaUsers className="text-indigo-600 text-4xl mb-4" />
           <h2 className="text-xl font-semibold text-center mb-4">Networking</h2>
           <p className="text-gray-600 text-center mb-4">Connect with fellow students and alumni for collaboration.</p>
-          <button className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg transition duration-300">
+          <button  onClick={() => navigate('/networking')} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg transition duration-300">
             Start Networking
           </button>
         </div>

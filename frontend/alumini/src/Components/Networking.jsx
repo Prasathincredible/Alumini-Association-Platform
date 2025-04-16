@@ -19,7 +19,7 @@ function Networking() {
     };
 
     fetchConversations();
-  }, [user.username]);
+  }, [user.userName]);
 
   const handleConversationClick = (partner) => {
     // Navigate to chat with selected user
@@ -35,7 +35,7 @@ function Networking() {
         <div className="grid grid-cols-1 gap-4">
           {conversations.map((conv) => {
             const partner =
-              conv.sender === user.username ? conv.receiver : conv.sender;
+              conv.sender === user.userName ? conv.receiver : conv.sender;
             return (
               <div
                 key={conv._id}
