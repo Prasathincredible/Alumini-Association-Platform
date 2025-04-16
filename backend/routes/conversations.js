@@ -27,7 +27,7 @@ router.post("/", async(req, res) => {
         });
       }
       await conversation.save();
-      console.log(conversation);
+      //console.log(conversation);
       res.status(200).json(conversation);
     } catch (error) {
       res.status(500).json({ error: "Something went wrong" });
@@ -38,7 +38,7 @@ router.post("/", async(req, res) => {
 router.get("/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    console.log(userId);
+    //console.log(userId);
 
     const conversations = await Conversation.find({
       $or: [

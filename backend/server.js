@@ -38,11 +38,11 @@ socket.on("join",(userId)=>{
   //console.log(`User ${userId} joined`);
 });
 
-socket.on("sendMessage", async ({senderName,receiverName,text})=>{
-  console.log("Message received:", { senderName, receiverName, text });
+socket.on("sendMessage", async ({sender,receiver,text})=>{
+  //console.log("Message received:", { senderName, receiverName, text });
   const newMessage=new Message({
-    sender:senderName,
-    receiver:receiverName,
+    sender:sender,
+    receiver:receiver,
     text,  
   });
 
@@ -50,7 +50,7 @@ socket.on("sendMessage", async ({senderName,receiverName,text})=>{
 
   await newMessage.save();
 
-  const receiverSocket=onlineUsers.get(receiverName);
+  const receiverSocket=onlineUsers.get(receiver);
   if(receiverSocket){
     io.to(receiverSocket).emit("receiverMessage",newMessage);
   }
