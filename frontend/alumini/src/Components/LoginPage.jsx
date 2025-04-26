@@ -36,6 +36,8 @@ const LoginPage = () => {
       const { user, token, role } = res.data;
       loginUser(user, token, role);
 
+      console.log(user+" "+token+" "+role);
+
       if (role === "admin") {
         navigate("/admin_dashboard");
       } else if (role === "student") {
