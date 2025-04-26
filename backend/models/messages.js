@@ -14,9 +14,12 @@ const MessageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    file: {
+    fileUrl: {
       type: String, // URL of the uploaded file (for future file sharing)
     },
+    fileType:{
+      type:String,
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );

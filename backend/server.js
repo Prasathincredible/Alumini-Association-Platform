@@ -12,6 +12,7 @@ const aluminiRoutes=require('./routes/aluminiRoutes');
 const eventRoutes=require('./routes/event');
 const conversationRoutes=require('./routes/conversations');
 const messageRoutes=require('./routes/messages');
+const uploadImages=require('./routes/uploadImages');
 const Razorpay = require("razorpay");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -38,12 +39,14 @@ socket.on("join",(userId)=>{
   //console.log(`User ${userId} joined`);
 });
 
-socket.on("sendMessage", async ({sender,receiver,text})=>{
+socket.on("sendMessage", async ({sender,receiver,text,fileUrl, fileType})=>{
   //console.log("Message received:", { senderName, receiverName, text });
   const newMessage=new Message({
     sender:sender,
     receiver:receiver,
-    text,  
+    text, 
+    fileUrl,
+    fileType 
   });
 
   //console.log(newMessage);
@@ -291,11 +294,13 @@ app.get("/admin/pending-alumni", async (req, res) => {
 });
 
 
+
 app.use('/job', jobRoutes);
 app.use('/alumni',aluminiRoutes);
 app.use('/event',eventRoutes);
 app.use('/conversations',conversationRoutes);
 app.use('/messages',messageRoutes);
+app.use('/upload',uploadImages);
 app.use(authenticateToken);
 
 
