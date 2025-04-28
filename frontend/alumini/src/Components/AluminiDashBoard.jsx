@@ -1,33 +1,56 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import { 
-  FaBriefcase, FaUsers, FaCalendarAlt, FaTrophy, FaUser, FaPlus, 
-  FaClipboardList, FaSuitcase, FaSignOutAlt, FaHandHoldingHeart, FaDonate 
+  FaUser, FaBriefcase, FaHandHoldingHeart, FaComments, FaSignOutAlt, 
+  FaCalendarAlt, FaDonate, FaChevronDown 
 } from "react-icons/fa";
-import axios from "axios"; // Import axios for API calls
-import { UserContext } from "../contexts/UserContext"; 
+import axios from "axios";
+import { UserContext } from "../contexts/UserContext";
 
 function AlumniDashboard() {
-  const [showJobOptions, setShowJobOptions] = useState(false);
-  const [showDonationOptions, setShowDonationOptions] = useState(false); 
-  const { logoutUser } = useContext(UserContext); 
-  const navigate = useNavigate(); 
+  const { user, logoutUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  const [events, setEvents] = useState([]); // State for storing events
+  // Data
+  const [events, setEvents] = useState([]);
+  const [donations, setDonations] = useState([]);
 
-  // Fetch Events from Backend
+  // UI state
+  const [jobDropdown, setJobDropdown] = useState(false);
+  const [donationDropdown, setDonationDropdown] = useState(false);
+  const [showMyDonationsModal, setShowMyDonationsModal] = useState(false);
+  const [myDonations, setMyDonations] = useState([]);
+
+  // Fetch upcoming events
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/event/events"); // Adjust backend URL
-        setEvents(response.data);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      }
-    };
-
-    fetchEvents();
+    axios
+      .get("http://localhost:3000/event/events")
+      .then((res) => setEvents(res.data))
+      .catch(console.error);
   }, []);
+
+  // Fetch donation *posts*
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/donation/all")
+      .then((res) => setDonations(res.data))
+      .catch(console.error);
+  }, []);
+
+  // Fetch *your* donation transactions
+  const handleViewMyDonations = async () => {
+    setDonationDropdown(false);
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/viewdonations/${user.email}`
+      );
+      setMyDonations(res.data);
+    } catch (err) {
+      console.error("Failed to fetch your donations:", err);
+      setMyDonations([]);
+    }
+    setShowMyDonationsModal(true);
+  };
 
   const handleLogout = () => {
     logoutUser();
@@ -35,113 +58,202 @@ function AlumniDashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-blue-900 text-white flex flex-col p-6 justify-between">
-        <div>
-          <h2 className="text-2xl font-bold mb-6 text-center">Alumni Dashboard</h2>
-          <nav className="space-y-4">
-            <Link to="/profile" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
-              <FaUser />
-              <span>View Profile</span>
-            </Link>
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Top Nav */}
+      <header className="w-full flex justify-between items-center p-5 bg-blue-900 text-white shadow-md relative">
+        <div className="text-2xl font-bold">AlumniDashboard</div>
+        <nav className="flex space-x-6 items-center relative">
+          <Link to="/profile" className="flex items-center hover:text-gray-300 transition">
+            <FaUser size={20} />
+            <span className="ml-1 hidden sm:inline">Profile</span>
+          </Link>
 
-            <button onClick={() => setShowJobOptions(!showJobOptions)} className="flex items-center space-x-3 p-3 w-full text-left rounded-lg hover:bg-blue-700 transition">
-              <FaBriefcase />
-              <span>Job Portal</span>
+          {/* Jobs Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setJobDropdown(!jobDropdown)}
+              className="flex items-center hover:text-gray-300 transition"
+            >
+              <FaBriefcase size={20} />
+              <span className="ml-1 hidden sm:inline">Jobs</span>
+              <FaChevronDown size={12} className="ml-1" />
             </button>
-
-            {showJobOptions && (
-              <div className="ml-6 space-y-2">
-                <Link to="/postjob" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-700 transition">
-                  <FaPlus />
-                  <span>Post a Job</span>
+            {jobDropdown && (
+              <div className="absolute right-0 mt-2 bg-white text-black rounded-lg shadow-lg py-2 w-40 z-50">
+                <Link
+                  to="/postjob"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                  onClick={() => setJobDropdown(false)}
+                >
+                  Post a Job
                 </Link>
-                <Link to="/applyjob" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-700 transition">
-                  <FaSuitcase />
-                  <span>Apply for a Job</span>
+                <Link
+                  to="/applyjob"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                  onClick={() => setJobDropdown(false)}
+                >
+                  Apply for Jobs
                 </Link>
               </div>
             )}
+          </div>
 
-            <Link to="/networking" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
-              <FaUsers />
-              <span>Networking</span>
-            </Link>
-
-           {/* <Link to="/events" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
-              <FaCalendarAlt />
-              <span>Event Management</span>
-            </Link>*/}
-
-            <Link to="/success-stories" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition">
-              <FaTrophy />
-              <span>Success Stories</span>
-            </Link>
-
-            <button onClick={() => setShowDonationOptions(!showDonationOptions)} className="flex items-center space-x-3 p-3 w-full text-left rounded-lg hover:bg-blue-700 transition">
-              <FaHandHoldingHeart />
-              <span>Donation Portal</span>
+          {/* Donations Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setDonationDropdown(!donationDropdown)}
+              className="flex items-center hover:text-gray-300 transition"
+            >
+              <FaHandHoldingHeart size={20} />
+              <span className="ml-1 hidden sm:inline">Donations</span>
+              <FaChevronDown size={12} className="ml-1" />
             </button>
-
-            {showDonationOptions && (
-              <div className="ml-6 space-y-2">
-                <Link to="/donate" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-700 transition">
-                  <FaDonate />
-                  <span>Make a Donation</span>
+            {donationDropdown && (
+              <div className="absolute right-0 mt-2 bg-white text-black rounded-lg shadow-lg py-2 w-48 z-50">
+                <Link
+                  to="/donate"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                  onClick={() => setDonationDropdown(false)}
+                >
+                  Make a Donation
                 </Link>
-                <Link to="/view-donations" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-700 transition">
-                  <FaClipboardList />
-                  <span>View Donations</span>
-                </Link>
+                <button
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  onClick={handleViewMyDonations}
+                >
+                  View My Donations
+                </button>
               </div>
             )}
-          </nav>
-        </div>
+          </div>
 
-        <button onClick={handleLogout} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition w-full">
-          <FaSignOutAlt />
-          <span>Logout</span>
-        </button>
-      </aside>
+          <Link to="/networking" className="flex items-center hover:text-gray-300 transition">
+            <FaComments size={20} />
+            <span className="ml-1 hidden sm:inline">Chat</span>
+          </Link>
+          <button onClick={handleLogout} className="flex items-center hover:text-red-400 transition">
+            <FaSignOutAlt size={20} />
+            <span className="ml-1 hidden sm:inline">Logout</span>
+          </button>
+        </nav>
+      </header>
 
-      {/* Main Content Area - Display Events */}
-      <main className="flex-1 p-10">
-        <h1 className="text-3xl font-bold text-gray-800">Welcome to the Alumni Dashboard</h1>
-        <p className="mt-2 text-gray-600">Connect, grow, and stay engaged with your alumni network!</p>
-
-        {/* Events Section */}
-        <div className="mt-8">
-  <h2 className="text-2xl font-bold text-gray-700">Upcoming Events</h2>
-  {events.length === 0 ? (
-    <p className="mt-4 text-gray-500">No events available.</p>
-  ) : (
-    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {events.map((event) => (
-        <div key={event._id} className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
-          {/* Event Media */}
-          {event.media && (
-            <img
-              src={event.media}
-              alt={event.title}
-              className="w-full h-60 object-cover"
-            />
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        {/* Events */}
+        <section className="mb-12">
+          <div className="flex items-center mb-6">
+            <FaCalendarAlt className="text-blue-700 mr-2" size={24} />
+            <h2 className="text-2xl font-bold text-gray-800">Upcoming Events</h2>
+          </div>
+          {events.length === 0 ? (
+            <p className="text-gray-500">No events available.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((ev) => (
+                <div
+                  key={ev._id}
+                  className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition"
+                >
+                  {ev.media && (
+                    <img
+                      src={ev.media}
+                      alt={ev.title}
+                      className="w-full h-60 object-cover"
+                    />
+                  )}
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900">{ev.title}</h3>
+                    <p className="text-gray-600 mt-1">{ev.description}</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      📅 {new Date(ev.date).toLocaleDateString()} | 🕒 {ev.time} | 📍{" "}
+                      {ev.venue}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-          
-          {/* Event Details */}
-          <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-            <p className="text-gray-600 mt-1">{event.description}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              📅 {new Date(event.date).toLocaleDateString()} | 🕒 {event.time} | 📍 {event.venue}
-            </p>
+        </section>
+
+        {/* Donation Posts */}
+        <section>
+          <div className="flex items-center mb-6">
+            <FaDonate className="text-green-700 mr-2" size={24} />
+            <h2 className="text-2xl font-bold text-gray-800">Support Causes</h2>
+          </div>
+          {donations.length === 0 ? (
+            <p className="text-gray-500">No donation posts available.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {donations.map((dn) => (
+                <div
+                  key={dn._id}
+                  className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition"
+                >
+                  {dn.mediaType === "image" ? (
+                    <img
+                      src={dn.mediaUrl}
+                      alt="Donation"
+                      className="w-full h-60 object-cover"
+                    />
+                  ) : (
+                    <video
+                      controls
+                      src={dn.mediaUrl}
+                      className="w-full h-60 object-cover"
+                    />
+                  )}
+                  <div className="p-4 flex flex-col justify-between">
+                    <p className="text-gray-700">{dn.caption}</p>
+                    <Link
+                      to="/donate"
+                      className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition text-center"
+                    >
+                      Donate Now
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* My Donations Modal */}
+      {showMyDonationsModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-11/12 md:w-1/2">
+            <h2 className="text-xl font-bold mb-4">My Donations</h2>
+            {myDonations.length === 0 ? (
+              <p className="text-gray-500">You haven’t made any donations yet.</p>
+            ) : (
+              <ul className="space-y-3 max-h-64 overflow-y-auto">
+                {myDonations.map((d) => (
+                  <li key={d._id} className="border-b pb-2">
+                    <p>
+                      <strong>Cause:</strong> {d.caption}
+                    </p>
+                    <p>
+                      <strong>Amount:</strong> ₹{d.amount}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      <strong>On:</strong>{" "}
+                      {new Date(d.createdAt).toLocaleString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button
+              onClick={() => setShowMyDonationsModal(false)}
+              className="mt-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Close
+            </button>
           </div>
         </div>
-      ))}
-    </div>
-  )}
-</div>
-      </main>
+      )}
     </div>
   );
 }

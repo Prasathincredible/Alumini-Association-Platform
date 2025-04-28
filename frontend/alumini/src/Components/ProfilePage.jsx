@@ -63,6 +63,16 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 p-6">
+
+<div className="absolute top-6 left-6">
+    <button
+      onClick={() => window.history.back()}
+      className="text-blue-600 font-semibold hover:underline"
+    >
+      ← Back
+    </button>
+  </div>
+  
       <div className="bg-white shadow-xl rounded-xl max-w-4xl w-full p-8 sm:p-10">
         <div className="flex flex-col items-center text-center">
           <Avatar

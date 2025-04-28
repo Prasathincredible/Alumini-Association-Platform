@@ -27,11 +27,13 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post("http://localhost:3000/login", formData);
-      Swal.fire({
+      //console.log(formData)
+
+      /*Swal.fire({
         title: "Success!",
         text: "Welcome back!",
         icon: "success",
-      });
+      });*/
 
       const { user, token, role } = res.data;
       loginUser(user, token, role);

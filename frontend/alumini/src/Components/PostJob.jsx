@@ -42,8 +42,7 @@ const PostJob = () => {
         ...jobData,
         skillsRequired: jobData.skillsRequired.split(","),
         postedBy: user._id,
-        postedByName: user.userName,
-        status: "pending", 
+        postedByName: user.userName
       });
 
       if (response.status === 201) {

@@ -23,6 +23,8 @@ import HomePage from './Components/HomePage';
 import CreateEvent from './Components/CreateEvent';
 import Chat from './Components/Chat';
 import Networking from './Components/Networking';
+import UploadDonation from './Components/UploadDonation';
+import ThankYou from './Components/ThankYou';
 
 
 function App() {
@@ -51,6 +53,8 @@ function App() {
           <Route path='/create_event' element={<CreateEvent/>}></Route>
           <Route path='/chat/:receiverName' element={<Chat/>}></Route>
           <Route path="/networking" element={<Networking/>}></Route>
+          <Route path='/upload_donation' element={<UploadDonation/>}></Route>
+          <Route path='/thankyou' element={<ThankYou/>}></Route>
           
         </Routes>
         </UserProvider>
