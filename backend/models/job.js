@@ -45,11 +45,6 @@ const JobSchema = new mongoose.Schema({
       userName: { type: String },
     },
   ],
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending', // Default to "pending" when a job is posted
-  },
   companyWebsite: {
     type: String,
     required: true, // Optional, but you can make it required if needed

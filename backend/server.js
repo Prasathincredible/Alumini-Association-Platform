@@ -6,6 +6,7 @@ const AluminiProfile=require('./models/alumini');
 const AdminProfile=require('./models/admin');
 const Message=require('./models/messages');
 const Student=require('../backend/models/student');
+const DonationPayment=require('./models/donationPayment');
 const authenticateToken=require('./middlewares/authenticateToken');
 const jobRoutes=require('./routes/jobRoutes');
 const aluminiRoutes=require('./routes/aluminiRoutes');
@@ -13,6 +14,7 @@ const eventRoutes=require('./routes/event');
 const conversationRoutes=require('./routes/conversations');
 const messageRoutes=require('./routes/messages');
 const uploadImages=require('./routes/uploadImages');
+const donationRoutes=require('./routes/donationRoutes');
 const Razorpay = require("razorpay");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -209,6 +211,8 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
+
   app.get('/profile',authenticateToken, async(req,res)=>{
     try
     {
@@ -274,9 +278,9 @@ app.post("/donate", async (req, res) => {
     if (!razorpay.orders.create) {
       throw new Error("razorpay.orders.create is not a function");
     }
-
     const donation = await razorpay.orders.create(options);
-    console.log("Donation Order Response:", donation); // Debugging Log
+    //console.log(donation);
+    //console.log("Donation Order Response:", donation); 
     res.json(donation);
     
   } catch (error) {
@@ -284,6 +288,52 @@ app.post("/donate", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+app.post("/save-donation-payment", async (req, res) => {
+  try {
+    const { paymentId, orderId, amount, donationPostId, userEmail, status } = req.body;
+    const donationPayment = new DonationPayment({
+      paymentId,
+      orderId,
+      amount,
+      donationPostId,
+      userEmail,
+      status,
+      createdAt: new Date(),
+    });
+    await donationPayment.save();
+    res.status(200).json({ message: "Payment saved successfully" });
+  } catch (error) {
+    console.error("Error saving donation payment:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/viewdonations/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const donations = await DonationPayment.find({ userEmail: email });
+    res.status(200).json(donations);
+    //console.log(donations);
+  } catch (error) {
+    console.error("Error fetching donations:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.get("/viewdonations", async (req, res) => {
+  try {
+    const donations = await DonationPayment.find({  });
+    res.status(200).json(donations);
+    //console.log(donations);
+  } catch (error) {
+    console.error("Error fetching donations:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 
@@ -301,6 +351,7 @@ app.use('/event',eventRoutes);
 app.use('/conversations',conversationRoutes);
 app.use('/messages',messageRoutes);
 app.use('/upload',uploadImages);
+app.use('/donation',donationRoutes);
 app.use(authenticateToken);
 
 

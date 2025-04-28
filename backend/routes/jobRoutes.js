@@ -37,7 +37,7 @@ router.post("/postjobs", async(req, res)=>{
 
   router.get("/jobs", async (req, res) => {
     try {
-      const jobs = await Job.find({ status: "approved" }); // Filter only approved jobs
+      const jobs = await Job.find({}); // Filter only approved jobs
       res.json(jobs);
     } catch (error) {
       res.status(500).json({ error: "Error fetching jobs" });
@@ -100,50 +100,6 @@ router.get("/job/:jobId/applied-users", async (req, res) => {
       res.status(500).json({ error: "Error fetching applied users" });
     }
   });
-
-
-  router.get("/pending-jobs", async (req, res) => {
-    try {
-  
-      const pendingJobs = await Job.find({ status: "pending" });
-      res.status(200).json(pendingJobs);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching pending jobs", error });
-    }
-  });
-
-
-  router.get("/approved-jobs", async (req, res) => {
-    try {
-      const approvedJobs = await Job.find({ status: "approved" });
-      res.status(200).json(approvedJobs);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching approved jobs", error });
-    }
-  });
-
-
-  router.put("/approve-job/:id", async (req, res) => {
-    try {
-      const job = await Job.findByIdAndUpdate(req.params.id, { status: "approved" }, { new: true });
-      if (!job) return res.status(404).json({ message: "Job not found" });
-      res.status(200).json({ message: "Job approved successfully", job });
-    } catch (error) {
-      res.status(500).json({ message: "Error approving job", error });
-    }
-  });
-
-
-  router.delete("/delete-job/:id", async (req, res) => {
-    try {
-      const job = await Job.findByIdAndDelete(req.params.id);
-      if (!job) return res.status(404).json({ message: "Job not found" });
-      res.status(200).json({ message: "Job deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ message: "Error deleting job", error });
-    }
-  });
-  
 
 
   module.exports=router
