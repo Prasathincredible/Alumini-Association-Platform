@@ -72,7 +72,7 @@ socket.on("disconnect",()=>{
 });
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/alumini')
+mongoose.connect(process.env.MONGODB_URI)
 const db=mongoose.connection;
 db.on('error',(error)=> console.error(error));
 db.once('open',()=> console.log('Mongodb connected'));
@@ -162,14 +162,21 @@ app.post("/students/signup", upload.single("avatar"), async (req, res) => {
 app.post("/login", async (req, res) => {
   const { userInput, password } = req.body;  // userInput instead of email and userName
 
+  //console.log(mongoose.connection.readyState);
+  //console.log(AluminiProfile.collection.name);
+
+  //console.log(userInput.length);
+
   try {
     let user;
     let role;
-
+     //console.log(userInput);
     // Check if the userInput is an email or username
     if (userInput.includes('@')) {
       // If it's an email, check against AlumniProfile and Student models
       user = await AluminiProfile.findOne({ email: userInput });
+
+      console.log(user);
       if (user) {
         role = "user"; // Alumni role
       } else {
@@ -300,7 +307,7 @@ app.post("/save-donation-payment", async (req, res) => {
       donationPostId,
       userEmail,
       status,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
     await donationPayment.save();
     res.status(200).json({ message: "Payment saved successfully" });

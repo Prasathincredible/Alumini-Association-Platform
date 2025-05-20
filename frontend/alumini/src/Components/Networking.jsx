@@ -22,33 +22,44 @@ function Networking() {
   }, [user.userName]);
 
   const handleConversationClick = (partner) => {
-    // Navigate to chat with selected user
     navigate(`/chat/${partner}`);
   };
 
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Your Conversations</h1>
-      {conversations.length === 0 ? (
-        <p className="text-gray-500">No conversations yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {conversations.map((conv) => {
-            const partner =
-              conv.sender === user.userName ? conv.receiver : conv.sender;
-            return (
-              <div
-                key={conv._id}
-                onClick={() => handleConversationClick(partner)}
-                className="p-4 bg-white rounded-xl shadow hover:bg-gray-100 cursor-pointer"
-              >
-                <h2 className="text-lg font-semibold text-gray-700">Chat with {partner}</h2>
-                <p className="text-sm text-gray-500 mt-1">Last Message: {conv.lastMessage}</p>
-              </div>
-            );
-          })}
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">💬 Your Conversations</h1>
+
+        {conversations.length === 0 ? (
+          <div className="text-center text-gray-500">
+            <p>No conversations yet. Start chatting with your network!</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {conversations.map((conv) => {
+              const partner =
+                conv.sender === user.userName ? conv.receiver : conv.sender;
+              return (
+                <div
+                  key={conv._id}
+                  onClick={() => handleConversationClick(partner)}
+                  className="flex items-center p-4 bg-gradient-to-r from-indigo-100 to-indigo-200 rounded-xl shadow-sm hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-bold">
+                      {partner.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h2 className="text-lg font-semibold text-gray-700">{partner}</h2>
+                    <p className="text-sm text-gray-500">Tap to continue chat</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
