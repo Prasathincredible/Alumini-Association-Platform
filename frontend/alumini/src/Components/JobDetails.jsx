@@ -18,7 +18,7 @@ const JobDetails = () => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/job/jobs/${id}`);
+        const response = await axios.get(`https://campus-bridge-zb03.onrender.com/job/jobs/${id}`);
         setJob(response.data);
 
         if (user && response.data.appliedUsers.some((u) => u.userId === user._id)) {
@@ -44,7 +44,7 @@ const JobDetails = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/job/apply", {
+      await axios.post("https://campus-bridge-zb03.onrender.com/job/apply", {
         jobId: id,
         userId: user._id,
         userName: user.userName,

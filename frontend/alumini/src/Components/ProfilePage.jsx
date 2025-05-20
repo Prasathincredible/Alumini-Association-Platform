@@ -20,7 +20,7 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("authToken");
       try {
-        const response = await axios.get("http://localhost:3000/profile", {
+        const response = await axios.get("https://campus-bridge-zb03.onrender.com/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAlumni(response.data);

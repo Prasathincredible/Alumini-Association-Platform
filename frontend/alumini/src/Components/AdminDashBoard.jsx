@@ -23,7 +23,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchPendingAlumni = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/admin/pending-alumni");
+        const response = await axios.get("https://campus-bridge-zb03.onrender.com/admin/pending-alumni");
         setPendingAlumni(response.data);
       } catch (error) {
         console.error("Error fetching alumni:", error);
@@ -37,7 +37,7 @@ function AdminDashboard() {
     if (selectedSection === "viewEvents") {
       const fetchEvents = async () => {
         try {
-          const res = await axios.get("http://localhost:3000/event/events");
+          const res = await axios.get("https://campus-bridge-zb03.onrender.com/event/events");
           setEvents(res.data);
         } catch (error) {
           console.error("Failed to fetch events", error);
@@ -52,7 +52,7 @@ function AdminDashboard() {
     if (selectedSection === "viewDonations") {
       const fetchDonations = async () => {
         try {
-          const res = await axios.get("http://localhost:3000/viewdonations");
+          const res = await axios.get("https://campus-bridge-zb03.onrender.com/viewdonations");
           setDonations(res.data);
         } catch (error) {
           console.error("Failed to fetch donations", error);

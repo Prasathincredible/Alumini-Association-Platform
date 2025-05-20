@@ -26,7 +26,7 @@ const LoginPage = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/login", formData);
+      const res = await axios.post("https://campus-bridge-zb03.onrender.com/login", formData);
       //console.log(formData)
 
       /*Swal.fire({

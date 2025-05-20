@@ -22,7 +22,7 @@ const AlumniDirectory = () => {
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/alumni");
+        const response = await axios.get("https://campus-bridge-zb03.onrender.com/alumni");
         setAlumni(response.data);
         setFilteredAlumni(response.data);
       } catch (err) {

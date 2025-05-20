@@ -11,7 +11,7 @@ function Networking() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/conversations/${user.userName}`);
+        const response = await axios.get(`https://campus-bridge-zb03.onrender.com/conversations/${user.userName}`);
         setConversations(response.data);
       } catch (error) {
         console.error("Error fetching conversations:", error);

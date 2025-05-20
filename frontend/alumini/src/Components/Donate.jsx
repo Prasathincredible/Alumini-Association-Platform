@@ -14,7 +14,7 @@ const Donate = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/donation/all");
+        const response = await axios.get("https://campus-bridge-zb03.onrender.com/donation/all");
         setDonations(response.data);
       } catch (error) {
         console.error("Error fetching donations:", error);
@@ -32,7 +32,7 @@ const Donate = () => {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:3000/donate", {
+      const { data } = await axios.post("https://campus-bridge-zb03.onrender.com/donate", {
         amount: enteredAmount, // Send the user's entered amount
         currency: "INR",
       });

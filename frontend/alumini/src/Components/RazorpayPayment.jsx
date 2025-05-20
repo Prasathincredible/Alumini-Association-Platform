@@ -19,7 +19,7 @@ const RazorpayPayment = ({ orderId, amount, currency, userEmail, selectedDonatio
 
                 // Save success payment
                 try {
-                    await axios.post("http://localhost:3000/save-donation-payment", {
+                    await axios.post("https://campus-bridge-zb03.onrender.com/save-donation-payment", {
                         paymentId: response.razorpay_payment_id,
                         orderId: response.razorpay_order_id,
                         amount: donationAmount,
@@ -56,7 +56,7 @@ const RazorpayPayment = ({ orderId, amount, currency, userEmail, selectedDonatio
 
             // Save failed payment
             try {
-                await axios.post("http://localhost:3000/save-donation-payment", {
+                await axios.post("https://campus-bridge-zb03.onrender.com/save-donation-payment", {
                     paymentId: response.error.metadata.payment_id,
                     orderId: response.error.metadata.order_id,
                     amount: donationAmount,

@@ -18,14 +18,14 @@ const AlumniDetails = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/alumni/${id}`)
+      .get(`https://campus-bridge-zb03.onrender.com/alumni/${id}`)
       .then((response) => setAlumni(response.data))
       .catch((error) => console.error("Error fetching alumni details:", error));
   }, [id]);
 
   const handleApproval = async (status) => {
     try {
-      await axios.put(`http://localhost:3000/alumni/${id}/status`, { status });
+      await axios.put(`https://campus-bridge-zb03.onrender.com/alumni/${id}/status`, { status });
       setStatus(status);
       alert(`Alumni has been ${status}`);
     } catch (error) {

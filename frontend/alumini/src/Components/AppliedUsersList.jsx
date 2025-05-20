@@ -14,7 +14,7 @@ function AppliedUsersList() {
     if (!user) return; // Ensure user is logged in
 
     axios
-      .get(`http://localhost:3000/job/job/${jobId}/applied-users?userId=${user._id}`)
+      .get(`https://campus-bridge-zb03.onrender.com/job/job/${jobId}/applied-users?userId=${user._id}`)
       .then((res) => {
         setAppliedUsers(res.data.appliedUsers);
       })

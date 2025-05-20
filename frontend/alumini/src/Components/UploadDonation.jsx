@@ -23,7 +23,7 @@ function UploadDonation() {
 
     try {
       setUploading(true);
-      const res = await axios.post("http://localhost:3000/donation/upload", formData, {
+      const res = await axios.post("https://campus-bridge-zb03.onrender.com/donation/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

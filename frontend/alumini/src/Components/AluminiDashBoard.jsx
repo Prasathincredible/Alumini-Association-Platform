@@ -24,7 +24,7 @@ function AlumniDashboard() {
   // Fetch upcoming events
   useEffect(() => {
     axios
-      .get("http://localhost:3000/event/events")
+      .get("https://campus-bridge-zb03.onrender.com/event/events")
       .then((res) => setEvents(res.data))
       .catch(console.error);
   }, []);
@@ -32,7 +32,7 @@ function AlumniDashboard() {
   // Fetch donation *posts*
   useEffect(() => {
     axios
-      .get("http://localhost:3000/donation/all")
+      .get("https://campus-bridge-zb03.onrender.com/donation/all")
       .then((res) => setDonations(res.data))
       .catch(console.error);
   }, []);
@@ -42,7 +42,7 @@ function AlumniDashboard() {
     setDonationDropdown(false);
     try {
       const res = await axios.get(
-        `http://localhost:3000/viewdonations/${user.email}`
+        `https://campus-bridge-zb03.onrender.com/viewdonations/${user.email}`
       );
       setMyDonations(res.data);
     } catch (err) {

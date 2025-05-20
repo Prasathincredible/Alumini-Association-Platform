@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
 
-const socket = io("http://localhost:3000", {
+const socket = io("https://campus-bridge-zb03.onrender.com", {
   transports: ["websocket", "polling"],
 });
 
@@ -50,7 +50,7 @@ function Chat() {
     }
 
     axios
-      .get(`http://localhost:3000/messages/${user.userName}/${receiverName}`)
+      .get(`https://campus-bridge-zb03.onrender.com/messages/${user.userName}/${receiverName}`)
       .then((res) => setMessages(res.data))
       .catch((err) => console.error(err));
 
@@ -67,7 +67,7 @@ function Chat() {
   const uploadFileToCloudinary = async (file) => {
     try {
       // 1. Get signature and timestamp from backend
-      const signatureRes = await axios.post('http://localhost:3000/upload/generate-signature');
+      const signatureRes = await axios.post('https://campus-bridge-zb03.onrender.com/upload/generate-signature');
       const { signature, timestamp } = signatureRes.data;
 
       console.log("Signature:", signature);

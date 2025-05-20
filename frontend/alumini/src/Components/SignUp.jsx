@@ -49,7 +49,7 @@ const Signup = () => {
         }
       });
   
-      await axios.post("http://localhost:3000/signup", formDataToSend, {
+      await axios.post("https://campus-bridge-zb03.onrender.com/signup", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
   

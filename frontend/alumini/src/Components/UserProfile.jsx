@@ -25,7 +25,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/profile/${userName}`);
+        const response = await axios.get(`https://campus-bridge-zb03.onrender.com/profile/${userName}`);
         setUserProfile(response.data);
         setLoading(false);
       } catch (err) {
@@ -57,7 +57,7 @@ const UserProfile = () => {
   const handleChatClick = async() => {
     if (role === "student") {
       try {
-        const response = await axios.post("http://localhost:3000/conversations", {
+        const response = await axios.post("https://campus-bridge-zb03.onrender.com/conversations", {
           sender: user.userName,
           receiver: name,
         });

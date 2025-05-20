@@ -12,7 +12,7 @@ const ApplyJob = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/job/jobs");
+        const response = await axios.get("https://campus-bridge-zb03.onrender.com/job/jobs");
         setJobs(response.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);

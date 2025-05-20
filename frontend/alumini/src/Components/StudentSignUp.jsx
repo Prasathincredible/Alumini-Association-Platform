@@ -38,7 +38,7 @@ const StudentSignUp = () => {
         formDataToSend.append("avatar", avatarFile); // Append avatar file
       }
 
-      const response = await axios.post("http://localhost:3000/students/signup", formDataToSend, {
+      const response = await axios.post("https://campus-bridge-zb03.onrender.com/students/signup", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
