@@ -1,6 +1,8 @@
 [build]
+  publish = "dist"
   command = "npm run build"
-  publish = "dist" # or "frontend/alumini/dist" if you're inside subfolder
 
-[build.environment]
-  NODE_VERSION = "18"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
