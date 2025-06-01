@@ -8,6 +8,8 @@ router.post("/postjobs", async(req, res)=>{
       const {title, companyName, location, jobType, skillsRequired, salary, description,deadline, companyWebsite, postedBy, postedByName}=req.body;
   
       console.log(title);
+
+      
       if(!title || !companyName || !location || !description || !deadline){
         return res.status(400).json({message: "Please fill in all required fields"});
       }

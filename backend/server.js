@@ -87,6 +87,7 @@ app.post("/signup", upload.fields([{ name: "avatar" }, { name: "marksheet" }]), 
     const { userName, email, password, batch, department, industry, company, position, phone, linkedin, github } = req.body;
 
     console.log(userName);
+    
     const avatar = req.files["avatar"] ? req.files["avatar"][0].path : null;
     const marksheet = req.files["marksheet"] ? req.files["marksheet"][0].path : null;
 
