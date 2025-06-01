@@ -4,13 +4,14 @@ import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import axios from "axios";
-import { School } from "@mui/icons-material"; // Material UI icon for Alumni
+import { School } from "@mui/icons-material";
 
 const LoginPage = () => {
   const { loginUser } = useContext(UserContext);
   const [formData, setFormData] = useState({ userInput: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // NEW STATE
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,52 +26,42 @@ const LoginPage = () => {
       return;
     }
 
+    setLoading(true); // Start loading
+
     try {
       const res = await axios.post("https://campus-bridge-zb03.onrender.com/login", formData);
-      //console.log(formData)
-
-      /*Swal.fire({
-        title: "Success!",
-        text: "Welcome back!",
-        icon: "success",
-      });*/
-
       const { user, token, role } = res.data;
       loginUser(user, token, role);
 
-      console.log(user+" "+token+" "+role);
-
-      if (role === "admin") {
-        navigate("/admin_dashboard");
-      } else if (role === "student") {
-        navigate("/student_dashboard");
-      } else {
-        navigate("/alumini_dashboard");
-      }
+      // Simulate delay (optional for smoother UX)
+      setTimeout(() => {
+        if (role === "admin") {
+          navigate("/admin_dashboard");
+        } else if (role === "student") {
+          navigate("/student_dashboard");
+        } else {
+          navigate("/alumini_dashboard");
+        }
+      }, 800);
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials.");
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      {/* Login Card */}
       <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-8 w-full max-w-md">
-        {/* Logo and Heading */}
         <div className="flex flex-col items-center mb-6">
           <School className="text-blue-600" style={{ fontSize: 72 }} />
           <h1 className="text-3xl font-bold text-gray-900">Alumni Association</h1>
         </div>
 
-        {/* Welcome Back Text */}
         <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">Welcome Back 👋</h2>
 
-        {/* Error Message */}
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="w-full space-y-5">
-          {/* Username Input */}
           <div className="relative">
             <FaUser className="absolute left-3 top-3 text-gray-500" />
             <input
@@ -80,10 +71,10 @@ const LoginPage = () => {
               value={formData.userInput}
               onChange={handleChange}
               className="w-full px-10 py-3 bg-gray-200 rounded-md border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
             />
           </div>
 
-          {/* Password Input */}
           <div className="relative">
             <FaLock className="absolute left-3 top-3 text-gray-500" />
             <input
@@ -93,17 +84,18 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
               className="w-full px-10 py-3 bg-gray-200 rounded-md border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-3 text-gray-500"
+              disabled={loading}
             >
               {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
             </button>
           </div>
 
-          {/* Forgot Password Link */}
           <div className="text-right">
             <a href="/forgot-password" className="text-blue-600 text-sm hover:underline">
               Forgot password?
@@ -113,12 +105,33 @@ const LoginPage = () => {
           {/* Sign In Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition duration-300"
+            className="w-full flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition duration-300 disabled:opacity-60"
+            disabled={loading}
           >
-            Sign In
+            {loading && (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.372 0 0 5.372 0 12h4z"
+                />
+              </svg>
+            )}
+            {loading ? "Signing In..." : "Sign In"}
           </button>
 
-          {/* Sign Up Link */}
           <p className="text-center text-gray-700 text-sm mt-4">
             Don't have an account?{" "}
             <a href="/signup" className="text-blue-600 hover:underline font-semibold">
