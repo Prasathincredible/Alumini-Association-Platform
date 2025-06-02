@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
+import { ArrowBack } from "@mui/icons-material";
 
-const socket = io("https://campus-bridge-zb03.onrender.com", {
+const apiurl = import.meta.env.VITE_API_URL;
+
+const socket = io(`${apiurl}`, {
   transports: ["websocket", "polling"],
 });
 
-// --- Your Cloudinary details ---
-const CLOUDINARY_CLOUD_NAME = "dljz9g6hg"; 
-const CLOUDINARY_API_KEY = 376781573396975
-const UPLOAD_PRESET= "ml_default"; // <-- Add your API key here
+// Cloudinary details
+const CLOUDINARY_CLOUD_NAME = "dljz9g6hg";
+const CLOUDINARY_API_KEY = 376781573396975;
+const UPLOAD_PRESET = "ml_default";
 
 function Chat() {
   const { user } = useContext(UserContext);
@@ -19,6 +22,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
+  const navigate = useNavigate();
 
   const formatTime = (isoString) => {
     const date = new Date(isoString);
@@ -31,11 +35,9 @@ function Chat() {
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const isToday = date.toDateString() === today.toDateString();
-    const isYesterday = date.toDateString() === yesterday.toDateString();
+    if (date.toDateString() === today.toDateString()) return "Today";
+    if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
 
-    if (isToday) return "Today";
-    if (isYesterday) return "Yesterday";
     return date.toLocaleDateString(undefined, {
       weekday: "long",
       year: "numeric",
@@ -50,7 +52,7 @@ function Chat() {
     }
 
     axios
-      .get(`https://campus-bridge-zb03.onrender.com/messages/${user.userName}/${receiverName}`)
+      .get(`${apiurl}/messages/${user.userName}/${receiverName}`)
       .then((res) => setMessages(res.data))
       .catch((err) => console.error(err));
 
@@ -63,31 +65,24 @@ function Chat() {
     };
   }, [user, receiverName]);
 
-  // Function to upload file securely
   const uploadFileToCloudinary = async (file) => {
     try {
-      // 1. Get signature and timestamp from backend
-      const signatureRes = await axios.post('https://campus-bridge-zb03.onrender.com/upload/generate-signature');
+      const signatureRes = await axios.post(`${apiurl}/upload/generate-signature`);
       const { signature, timestamp } = signatureRes.data;
-
-      console.log("Signature:", signature);
-      console.log("Timestamp:", timestamp);
-
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", CLOUDINARY_API_KEY);
-      formData.append("upload_preset",UPLOAD_PRESET); // optional upload preset
+      formData.append("upload_preset", UPLOAD_PRESET);
       formData.append("timestamp", timestamp);
       formData.append("signature", signature);
-    
 
       const cloudinaryRes = await axios.post(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`,
         formData
       );
 
-      return cloudinaryRes.data.secure_url; // uploaded file URL
+      return cloudinaryRes.data.secure_url;
     } catch (error) {
       console.error("Secure file upload failed:", error);
       throw error;
@@ -105,7 +100,7 @@ function Chat() {
         fileUrl = await uploadFileToCloudinary(file);
         fileType = file.type.startsWith("image") ? "image" : "pdf";
       } catch (error) {
-        return; // stop sending message if upload fails
+        return;
       }
     }
 
@@ -147,11 +142,19 @@ function Chat() {
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto border border-gray-300 rounded-lg shadow-lg bg-white">
-      {/* Header */}
+      {/* Header with Back Button */}
       <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Chat with <span className="text-blue-600">@{receiverName}</span>
-        </h2>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-600 hover:text-blue-600 transition"
+          >
+            <ArrowBack />
+          </button>
+          <h2 className="text-xl font-semibold text-gray-800">
+            Chat with <span className="text-blue-600">@{receiverName}</span>
+          </h2>
+        </div>
       </div>
 
       {/* Messages */}
@@ -175,10 +178,7 @@ function Chat() {
                       : "bg-white border text-gray-800 rounded-bl-md"
                   }`}
                 >
-                  {/* Render text */}
                   {msg.text && <div>{msg.text}</div>}
-
-                  {/* Render file if exists */}
                   {msg.fileUrl && (
                     <>
                       {msg.fileType === "image" ? (
@@ -209,7 +209,7 @@ function Chat() {
         ))}
       </div>
 
-      {/* Input */}
+      {/* Input Section */}
       <div className="flex items-center gap-3 px-6 py-4 border-t bg-white">
         <input
           type="text"
@@ -225,7 +225,10 @@ function Chat() {
           id="fileUpload"
           accept="image/*,.pdf"
         />
-        <label htmlFor="fileUpload" className="cursor-pointer px-3 py-2 border border-gray-400 rounded-md hover:bg-gray-100">
+        <label
+          htmlFor="fileUpload"
+          className="cursor-pointer px-3 py-2 border border-gray-400 rounded-md hover:bg-gray-100"
+        >
           📎
         </label>
         <button

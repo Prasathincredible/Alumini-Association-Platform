@@ -10,22 +10,25 @@ import {
   FaFileAlt,
 } from "react-icons/fa";
 
+const apiurl=import.meta.env.VITE_API_URL;
+
 const AlumniDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [alumni, setAlumni] = useState(null);
   const [status, setStatus] = useState(null);
+  
 
   useEffect(() => {
     axios
-      .get(`https://campus-bridge-zb03.onrender.com/alumni/${id}`)
+      .get(`${apiurl}/alumni/${id}`)
       .then((response) => setAlumni(response.data))
       .catch((error) => console.error("Error fetching alumni details:", error));
   }, [id]);
 
   const handleApproval = async (status) => {
     try {
-      await axios.put(`https://campus-bridge-zb03.onrender.com/alumni/${id}/status`, { status });
+      await axios.put(`${apiurl}/alumni/${id}/status`, { status });
       setStatus(status);
       alert(`Alumni has been ${status}`);
     } catch (error) {

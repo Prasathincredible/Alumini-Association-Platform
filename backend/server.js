@@ -25,7 +25,7 @@ const upload=require('./config/multer');
 const server=http.createServer(app);
 const io=new Server(server,{
   cors:{
-    origin:"https://campus-bridge.netlify.app",
+    origin:`${process.env.FRONTEND_URL}`,
     allowedHeaders:['Content-Type', 'Authorization'],
     methods:["GET","POST"],
   }
@@ -177,7 +177,7 @@ app.post("/login", async (req, res) => {
       // If it's an email, check against AlumniProfile and Student models
       user = await AluminiProfile.findOne({ email: userInput });
 
-      console.log(user);
+      //console.log(user);
       if (user) {
         role = "user"; // Alumni role
       } else {

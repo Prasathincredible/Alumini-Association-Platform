@@ -1,11 +1,17 @@
 import React, { useContext } from 'react';
-import { UserContext } from '../contexts/UserContext'; // Import UserContext
-import { useNavigate } from 'react-router-dom'; // To navigate to other pages after logout
-import { FaBriefcase, FaSearch, FaUsers, FaUniversity, FaUserAlt } from 'react-icons/fa'; // Icons
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../contexts/UserContext';
+import {
+  FaUserAlt,
+  FaBriefcase,
+  FaUsers,
+  FaSearch,
+  FaUniversity,
+} from 'react-icons/fa';
 
 function StudentDashBoard() {
-  const { logoutUser } = useContext(UserContext); // Get logoutUser function from context
-  const navigate = useNavigate(); // To navigate after logout
+  const { logoutUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logoutUser();
@@ -13,84 +19,75 @@ function StudentDashBoard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      {/* Header Section */}
-      <div className="bg-blue-600 text-white p-4 rounded-lg shadow-md mb-6">
-        <h1 className="text-3xl font-bold text-center">Student Dashboard</h1>
-      </div>
-
-      {/* Dashboard Main Content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-
-        {/* View Profile */}
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-          <FaUserAlt className="text-teal-600 text-4xl mb-4" />
-          <h2 className="text-xl font-semibold text-center mb-4">View Profile</h2>
-          <p className="text-gray-600 text-center mb-4">View and update your personal profile.</p>
-          <button
-            onClick={() => navigate('/student_profile')} // Navigate to the profile page
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white py-2 rounded-lg transition duration-300"
-          >
-            Go to Profile
-          </button>
+    <div className="w-screen h-screen bg-gradient-to-br from-blue-50 to-white overflow-y-auto p-4 md:p-8">
+      {/* Header */}
+      <div className="w-full bg-blue-600 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">🎓 Student Dashboard</h1>
+          <p className="text-white/80 text-sm">
+            Welcome! Manage your career, connect, and explore opportunities.
+          </p>
         </div>
-
-        {/* View Alumni Activities */}
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-          <FaUniversity className="text-blue-600 text-4xl mb-4" />
-          <h2 className="text-xl font-semibold text-center mb-4">View Alumni Activities</h2>
-          <p className="text-gray-600 text-center mb-4">Stay updated with alumni events and activities.</p>
-          <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition duration-300">
-            View Activities
-          </button>
-        </div>
-
-        {/* Look for a Job */}
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-          <FaBriefcase className="text-green-600 text-4xl mb-4" />
-          <h2 className="text-xl font-semibold text-center mb-4">Look for a Job</h2>
-          <p className="text-gray-600 text-center mb-4">Browse job listings and apply for positions.</p>
-          <button
-            onClick={() => navigate('/applyjob')} // Navigate to apply jobs page
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition duration-300"
-          >
-            Explore Jobs
-          </button>
-        </div>
-
-        {/* Networking */}
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-          <FaUsers className="text-indigo-600 text-4xl mb-4" />
-          <h2 className="text-xl font-semibold text-center mb-4">Networking</h2>
-          <p className="text-gray-600 text-center mb-4">Connect with fellow students and alumni for collaboration.</p>
-          <button  onClick={() => navigate('/networking')} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg transition duration-300">
-            Start Networking
-          </button>
-        </div>
-
-        {/* Search for Alumni */}
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
-          <FaSearch className="text-purple-600 text-4xl mb-4" />
-          <h2 className="text-xl font-semibold text-center mb-4">Search for Alumni</h2>
-          <p className="text-gray-600 text-center mb-4">Search the alumni directory and connect with former students.</p>
-          <button onClick={() => navigate('/aluminidirectory')} className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg transition duration-300">
-            Search Alumni
-          </button>
-        </div>
-
-      </div>
-
-      {/* Logout Section */}
-      <div className="mt-6 text-center">
         <button
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300"
+          className="mt-4 md:mt-0 bg-red-500 hover:bg-red-600 px-5 py-2 rounded-lg font-medium transition"
         >
           Logout
         </button>
       </div>
+
+      {/* Grid Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <DashboardCard
+          icon={<FaUserAlt className="text-4xl text-teal-600" />}
+          title="View Profile"
+          description="View and update your personal profile."
+          onClick={() => navigate('/student_profile')}
+          bgColor="from-teal-100 to-white"
+        />
+
+        <DashboardCard
+          icon={<FaBriefcase className="text-4xl text-green-600" />}
+          title="Look for a Job"
+          description="Browse job listings and apply for positions."
+          onClick={() => navigate('/applyjob')}
+          bgColor="from-green-100 to-white"
+        />
+
+        <DashboardCard
+          icon={<FaUsers className="text-4xl text-indigo-600" />}
+          title="Networking"
+          description="Connect with fellow students and alumni."
+          onClick={() => navigate('/networking')}
+          bgColor="from-indigo-100 to-white"
+        />
+
+        <DashboardCard
+          icon={<FaSearch className="text-4xl text-purple-600" />}
+          title="Search Alumni"
+          description="Search the alumni directory and connect."
+          onClick={() => navigate('/aluminidirectory')}
+          bgColor="from-purple-100 to-white"
+        />
+      </div>
     </div>
   );
 }
+
+const DashboardCard = ({ icon, title, description, onClick, bgColor }) => {
+  return (
+    <div
+      onClick={onClick}
+      className={`bg-gradient-to-br ${bgColor} p-6 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center`}
+    >
+      <div className="mb-4">{icon}</div>
+      <h2 className="text-xl font-semibold text-gray-800 mb-2">{title}</h2>
+      <p className="text-gray-600 text-sm mb-4">{description}</p>
+      <button className="mt-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+        Go
+      </button>
+    </div>
+  );
+};
 
 export default StudentDashBoard;

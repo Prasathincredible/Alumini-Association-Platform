@@ -62,6 +62,8 @@ router.post("/postjobs", async(req, res)=>{
   router.post("/apply", async (req, res) => {
     try {
       const { jobId, userId, userName } = req.body;
+
+      console.log(userName+" "+jobId)
   
       const job = await Job.findById(jobId);
   
@@ -73,6 +75,7 @@ router.post("/postjobs", async(req, res)=>{
         return res.status(400).json({ error: "User already applied" });
       }
       job.appliedUsers.push({userId, userName});
+      console.log(job)
       await job.save();
   
       res.json({ message: "Successfully applied", appliedUsers: job.appliedUsers });

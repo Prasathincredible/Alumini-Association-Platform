@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { MdWork, MdSchool } from "react-icons/md";
 import { BsBuilding, BsFileEarmarkImage } from "react-icons/bs";
+const apiurl=import.meta.env.VITE_API_URL;
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -65,7 +66,7 @@ const Signup = () => {
         }
       });
 
-      await axios.post("https://campus-bridge-zb03.onrender.com/signup", formDataToSend, {
+      await axios.post(`${apiurl}/signup`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

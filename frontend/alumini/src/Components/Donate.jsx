@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import RazorpayPayment from "./RazorpayPayment";
 import { UserContext } from "../contexts/UserContext";
-import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
+
+const apiurl = import.meta.env.VITE_API_URL;
 
 const Donate = () => {
   const [donations, setDonations] = useState([]);
   const [orderDetails, setOrderDetails] = useState(null);
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [donationAmount, setDonationAmount] = useState("");
-  const {user}=useContext(UserContext) // store the entered amount
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await axios.get("https://campus-bridge-zb03.onrender.com/donation/all");
+        const response = await axios.get(`${apiurl}/donation/all`);
         setDonations(response.data);
       } catch (error) {
         console.error("Error fetching donations:", error);
@@ -32,8 +36,8 @@ const Donate = () => {
     }
 
     try {
-      const { data } = await axios.post("https://campus-bridge-zb03.onrender.com/donate", {
-        amount: enteredAmount, // Send the user's entered amount
+      const { data } = await axios.post(`${apiurl}/donate`, {
+        amount: enteredAmount,
         currency: "INR",
       });
 
@@ -45,11 +49,20 @@ const Donate = () => {
     }
   };
 
-  
-
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Support Alumni Causes</h2>
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-6 flex items-center text-gray-600 hover:text-blue-600 transition"
+      >
+        <ArrowBack className="mr-1" />
+        Back
+      </button>
+
+      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        Support Alumni Causes
+      </h2>
 
       {donations.length === 0 ? (
         <p className="text-center text-gray-500">No donations available at the moment.</p>
@@ -57,22 +70,11 @@ const Donate = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {donations.map((donation) => (
             <div key={donation._id} className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
-              {/* Donation Media */}
               {donation.mediaType === "image" ? (
-                <img
-                  src={donation.mediaUrl}
-                  alt="Donation"
-                  className="w-full h-60 object-cover"
-                />
+                <img src={donation.mediaUrl} alt="Donation" className="w-full h-60 object-cover" />
               ) : (
-                <video
-                  controls
-                  src={donation.mediaUrl}
-                  className="w-full h-60 object-cover"
-                />
+                <video controls src={donation.mediaUrl} className="w-full h-60 object-cover" />
               )}
-
-              {/* Donation Content */}
               <div className="p-4 flex flex-col flex-grow justify-between">
                 <p className="text-gray-700 mb-4">{donation.caption}</p>
                 <button
@@ -87,16 +89,15 @@ const Donate = () => {
         </div>
       )}
 
-      {/* RazorpayPayment popup for selected donation */}
       {orderDetails && selectedDonation && (
-       <RazorpayPayment
-       orderId={orderDetails.id}
-       amount={orderDetails.amount}
-       currency={orderDetails.currency}
-       userEmail={user.email}
-       selectedDonation={selectedDonation}
-       donationAmount={donationAmount}
-     />
+        <RazorpayPayment
+          orderId={orderDetails.id}
+          amount={orderDetails.amount}
+          currency={orderDetails.currency}
+          userEmail={user.email}
+          selectedDonation={selectedDonation}
+          donationAmount={donationAmount}
+        />
       )}
     </div>
   );

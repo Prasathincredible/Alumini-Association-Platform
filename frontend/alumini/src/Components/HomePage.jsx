@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBriefcase, FaUsers, FaDonate, FaTrophy, FaCalendarAlt, FaSignInAlt, FaUserPlus } from "react-icons/fa";
+ const apiurl=import.meta.env.VITE_API_URL;
 
 const HomePage = () => {
   const navigate = useNavigate();

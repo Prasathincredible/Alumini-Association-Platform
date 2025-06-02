@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import axios from "axios";
 import { School } from "@mui/icons-material";
+const apiurl=import.meta.env.VITE_API_URL;
 
 const LoginPage = () => {
   const { loginUser } = useContext(UserContext);
@@ -13,6 +14,8 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false); // NEW STATE
   const navigate = useNavigate();
+
+  console.log(apiurl)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,10 +32,11 @@ const LoginPage = () => {
     setLoading(true); // Start loading
 
     try {
-      const res = await axios.post("https://campus-bridge-zb03.onrender.com/login", formData);
+  
+      const res = await axios.post(`${apiurl}/login`, formData);
       const { user, token, role } = res.data;
+      console.log(user)
       loginUser(user, token, role);
-
       // Simulate delay (optional for smoother UX)
       setTimeout(() => {
         if (role === "admin") {

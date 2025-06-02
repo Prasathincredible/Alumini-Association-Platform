@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+ const apiurl=import.meta.env.VITE_API_URL;
 
 const StudentSignUp = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ const StudentSignUp = () => {
         formDataToSend.append("avatar", avatarFile); // Append avatar file
       }
 
-      const response = await axios.post("https://campus-bridge-zb03.onrender.com/students/signup", formDataToSend, {
+      const response = await axios.post(`${apiurl}/students/signup`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

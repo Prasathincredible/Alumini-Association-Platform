@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+ const apiurl=import.meta.env.VITE_API_URL;
 
 const RazorpayPayment = ({ orderId, amount, currency, userEmail, selectedDonation, donationAmount }) => {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ const RazorpayPayment = ({ orderId, amount, currency, userEmail, selectedDonatio
 
                 // Save success payment
                 try {
-                    await axios.post("https://campus-bridge-zb03.onrender.com/save-donation-payment", {
+                    await axios.post(`${apiurl}/save-donation-payment`, {
                         paymentId: response.razorpay_payment_id,
                         orderId: response.razorpay_order_id,
                         amount: donationAmount,
@@ -56,7 +57,7 @@ const RazorpayPayment = ({ orderId, amount, currency, userEmail, selectedDonatio
 
             // Save failed payment
             try {
-                await axios.post("https://campus-bridge-zb03.onrender.com/save-donation-payment", {
+                await axios.post(`${apiurl}/save-donation-payment`, {
                     paymentId: response.error.metadata.payment_id,
                     orderId: response.error.metadata.order_id,
                     amount: donationAmount,

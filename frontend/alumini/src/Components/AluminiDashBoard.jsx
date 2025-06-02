@@ -7,6 +7,8 @@ import {
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 
+const apiurl=import.meta.env.VITE_API_URL;
+
 function AlumniDashboard() {
   const { user, logoutUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -21,10 +23,12 @@ function AlumniDashboard() {
   const [showMyDonationsModal, setShowMyDonationsModal] = useState(false);
   const [myDonations, setMyDonations] = useState([]);
 
+  
+
   // Fetch upcoming events
   useEffect(() => {
     axios
-      .get("https://campus-bridge-zb03.onrender.com/event/events")
+      .get(`${apiurl}/event/events`)
       .then((res) => setEvents(res.data))
       .catch(console.error);
   }, []);
@@ -32,7 +36,7 @@ function AlumniDashboard() {
   // Fetch donation *posts*
   useEffect(() => {
     axios
-      .get("https://campus-bridge-zb03.onrender.com/donation/all")
+      .get(`${apiurl}/donation/all`)
       .then((res) => setDonations(res.data))
       .catch(console.error);
   }, []);
@@ -42,7 +46,7 @@ function AlumniDashboard() {
     setDonationDropdown(false);
     try {
       const res = await axios.get(
-        `https://campus-bridge-zb03.onrender.com/viewdonations/${user.email}`
+        `${apiurl}/viewdonations/${user.email}`
       );
       setMyDonations(res.data);
     } catch (err) {

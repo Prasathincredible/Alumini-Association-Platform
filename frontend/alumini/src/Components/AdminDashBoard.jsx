@@ -12,18 +12,22 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 
+const apiurl=import.meta.env.VITE_API_URL;
+
 function AdminDashboard() {
   const [pendingAlumni, setPendingAlumni] = useState([]);
   const [events, setEvents] = useState([]);
   const [donations, setDonations] = useState([]);
   const [selectedSection, setSelectedSection] = useState("alumni");
   const navigate = useNavigate();
+ 
 
   // Fetch pending alumni
   useEffect(() => {
     const fetchPendingAlumni = async () => {
       try {
-        const response = await axios.get("https://campus-bridge-zb03.onrender.com/admin/pending-alumni");
+        console.log(apiurl)
+        const response = await axios.get(`${apiurl}/admin/pending-alumni`);
         setPendingAlumni(response.data);
       } catch (error) {
         console.error("Error fetching alumni:", error);
@@ -37,7 +41,7 @@ function AdminDashboard() {
     if (selectedSection === "viewEvents") {
       const fetchEvents = async () => {
         try {
-          const res = await axios.get("https://campus-bridge-zb03.onrender.com/event/events");
+          const res = await axios.get(`${apiurl}/event/events`);
           setEvents(res.data);
         } catch (error) {
           console.error("Failed to fetch events", error);
@@ -52,7 +56,7 @@ function AdminDashboard() {
     if (selectedSection === "viewDonations") {
       const fetchDonations = async () => {
         try {
-          const res = await axios.get("https://campus-bridge-zb03.onrender.com/viewdonations");
+          const res = await axios.get(`${apiurl}/viewdonations`);
           setDonations(res.data);
         } catch (error) {
           console.error("Failed to fetch donations", error);

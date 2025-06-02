@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CreateEvent from "./CreateEvent";
+ const apiurl=import.meta.env.VITE_API_URL;
 
 function EventPage() {
   const [showModal, setShowModal] = useState(false);

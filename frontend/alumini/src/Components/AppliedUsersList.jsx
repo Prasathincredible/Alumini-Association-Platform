@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../contexts/UserContext"; // Get logged-in user
 import { useParams, useNavigate } from "react-router-dom"; // useNavigate for redirection
 import axios from "axios";
+const apiurl=import.meta.env.VITE_API_URL;
 
 function AppliedUsersList() {
   const { jobId } = useParams(); // Get job ID from URL
@@ -14,7 +15,7 @@ function AppliedUsersList() {
     if (!user) return; // Ensure user is logged in
 
     axios
-      .get(`https://campus-bridge-zb03.onrender.com/job/job/${jobId}/applied-users?userId=${user._id}`)
+      .get(`${apiurl}/job/job/${jobId}/applied-users?userId=${user._id}`)
       .then((res) => {
         setAppliedUsers(res.data.appliedUsers);
       })

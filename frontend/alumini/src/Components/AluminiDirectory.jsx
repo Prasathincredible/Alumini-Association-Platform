@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Avatar, TextField, MenuItem } from "@mui/material";
-import { Search } from "@mui/icons-material";
+import { Search, ArrowBack } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+
+const apiurl = import.meta.env.VITE_API_URL;
 
 const AlumniDirectory = () => {
   const [alumni, setAlumni] = useState([]);
@@ -13,16 +15,15 @@ const AlumniDirectory = () => {
     role: "",
     location: "",
     batch: "",
-    company: "", // New company filter
+    company: "",
   });
 
   const navigate = useNavigate();
 
-  // Fetch all alumni
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
-        const response = await axios.get("https://campus-bridge-zb03.onrender.com/alumni");
+        const response = await axios.get(`${apiurl}/alumni`);
         setAlumni(response.data);
         setFilteredAlumni(response.data);
       } catch (err) {
@@ -32,9 +33,8 @@ const AlumniDirectory = () => {
     fetchAlumni();
   }, []);
 
-  // Handle filtering logic
   useEffect(() => {
-    let filtered = alumni.filter((alumnus) => {
+    const filtered = alumni.filter((alumnus) => {
       return (
         (filters.name === "" || alumnus.userName.toLowerCase().includes(filters.name.toLowerCase())) &&
         (filters.industry === "" || alumnus.industry === filters.industry) &&
@@ -47,19 +47,38 @@ const AlumniDirectory = () => {
     setFilteredAlumni(filtered);
   }, [filters, alumni]);
 
-  // Handle filter input changes
   const handleFilterChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100 flex flex-col items-center">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">🎓 Alumni Directory</h1>
+    <div className="min-h-screen p-4 sm:p-6 bg-gray-100 flex flex-col items-center relative">
+
+      {/* Back Button - Responsive and Stylish */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-4 left-4 flex items-center gap-2 text-gray-700 border border-gray-300 px-4 py-2 rounded-md bg-white hover:bg-gray-100 shadow-sm transition"
+      >
+        <ArrowBack fontSize="small" />
+        <span className="hidden sm:inline">Back</span>
+      </button>
+
+      <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-8 mt-12 sm:mt-0 text-center">
+        🎓 Alumni Directory
+      </h1>
 
       {/* FILTER SECTION */}
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-6xl mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <TextField label="Name" variant="outlined" name="name" value={filters.name} onChange={handleFilterChange} fullWidth InputProps={{ startAdornment: <Search className="text-gray-500" /> }} />
+          <TextField
+            label="Name"
+            variant="outlined"
+            name="name"
+            value={filters.name}
+            onChange={handleFilterChange}
+            fullWidth
+            InputProps={{ startAdornment: <Search className="text-gray-500" /> }}
+          />
           <TextField label="Industry" select name="industry" value={filters.industry} onChange={handleFilterChange} fullWidth>
             <MenuItem value="">All</MenuItem>
             <MenuItem value="IT">IT</MenuItem>
@@ -77,10 +96,10 @@ const AlumniDirectory = () => {
           <TextField label="Location" name="location" value={filters.location} onChange={handleFilterChange} fullWidth />
           <TextField label="Batch" select name="batch" value={filters.batch} onChange={handleFilterChange} fullWidth>
             <MenuItem value="">All</MenuItem>
+            <MenuItem value="2023">2023</MenuItem>
             <MenuItem value="2020">2020</MenuItem>
             <MenuItem value="2019">2019</MenuItem>
             <MenuItem value="2018">2018</MenuItem>
-            <MenuItem value="2023">2023</MenuItem>
           </TextField>
           <TextField label="Company" name="company" value={filters.company} onChange={handleFilterChange} fullWidth />
         </div>
@@ -89,7 +108,11 @@ const AlumniDirectory = () => {
       {/* ALUMNI CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
         {filteredAlumni.map((alumnus) => (
-          <div key={alumnus._id} className="bg-white rounded-lg shadow-lg p-6 flex items-center space-x-4 cursor-pointer hover:shadow-2xl transition transform hover:scale-105" onClick={() => navigate(`/profile/${alumnus.userName}`)}>
+          <div
+            key={alumnus._id}
+            className="bg-white rounded-lg shadow-md p-6 flex items-center space-x-4 cursor-pointer hover:shadow-2xl transition transform hover:scale-105"
+            onClick={() => navigate(`/profile/${alumnus.userName}`)}
+          >
             <Avatar src={alumnus.avatar} sx={{ width: 70, height: 70 }} />
             <div>
               <h2 className="text-xl font-semibold text-gray-800">{alumnus.userName}</h2>
@@ -100,7 +123,7 @@ const AlumniDirectory = () => {
         ))}
       </div>
 
-      {/* NO RESULTS MESSAGE */}
+      {/* NO RESULTS */}
       {filteredAlumni.length === 0 && (
         <div className="text-center text-gray-500 mt-6 text-lg">No alumni found matching the filters.</div>
       )}

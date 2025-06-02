@@ -11,6 +11,7 @@ import {
   WorkOutline,
   Apartment,
 } from "@mui/icons-material";
+ const apiurl=import.meta.env.VITE_API_URL;
 
 const ProfilePage = () => {
   const [alumni, setAlumni] = useState(null);
@@ -20,7 +21,7 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("authToken");
       try {
-        const response = await axios.get("https://campus-bridge-zb03.onrender.com/profile", {
+        const response = await axios.get(`${apiurl}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAlumni(response.data);

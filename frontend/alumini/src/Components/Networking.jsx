@@ -2,16 +2,21 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
+
+const apiurl = import.meta.env.VITE_API_URL;
 
 function Networking() {
   const { user } = useContext(UserContext);
   const [conversations, setConversations] = useState([]);
   const navigate = useNavigate();
 
+  console.log(user);
+
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const response = await axios.get(`https://campus-bridge-zb03.onrender.com/conversations/${user.userName}`);
+        const response = await axios.get(`${apiurl}/conversations/${user.userName}`);
         setConversations(response.data);
       } catch (error) {
         console.error("Error fetching conversations:", error);
@@ -26,9 +31,20 @@ function Networking() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">💬 Your Conversations</h1>
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10 relative">
+      {/* Back Button - Outside the container */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-indigo-600 transition"
+      >
+        <ArrowBack className="mr-1" />
+        Back
+      </button>
+
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 mt-12">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          💬 Your Conversations
+        </h1>
 
         {conversations.length === 0 ? (
           <div className="text-center text-gray-500">

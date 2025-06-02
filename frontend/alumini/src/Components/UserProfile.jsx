@@ -13,6 +13,8 @@ import {
   WorkOutline,
 } from "@mui/icons-material";
 
+const apiurl=import.meta.env.VITE_API_URL;
+
 const UserProfile = () => {
   const { userName } = useParams(); 
   const [userProfile, setUserProfile] = useState(null);
@@ -25,7 +27,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get(`https://campus-bridge-zb03.onrender.com/profile/${userName}`);
+        const response = await axios.get(`${apiurl}/profile/${userName}`);
         setUserProfile(response.data);
         setLoading(false);
       } catch (err) {
@@ -57,7 +59,7 @@ const UserProfile = () => {
   const handleChatClick = async() => {
     if (role === "student") {
       try {
-        const response = await axios.post("https://campus-bridge-zb03.onrender.com/conversations", {
+        const response = await axios.post(`${apiurl}/conversations`, {
           sender: user.userName,
           receiver: name,
         });

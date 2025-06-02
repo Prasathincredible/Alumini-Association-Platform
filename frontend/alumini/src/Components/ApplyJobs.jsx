@@ -1,18 +1,22 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 import { Work, Business, LocationOn, Search } from "@mui/icons-material";
+import { ArrowBack } from "@mui/icons-material";
+
+const apiurl = import.meta.env.VITE_API_URL;
 
 const ApplyJob = () => {
   const [jobs, setJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axios.get("https://campus-bridge-zb03.onrender.com/job/jobs");
+        const response = await axios.get(`${apiurl}/job/jobs`);
         setJobs(response.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);
@@ -21,7 +25,6 @@ const ApplyJob = () => {
     fetchJobs();
   }, []);
 
-  // Filter jobs based on search term
   const filteredJobs = jobs.filter((job) =>
     job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -30,6 +33,15 @@ const ApplyJob = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4"
+      >
+        <ArrowBack className="mr-2" />
+        Back
+      </button>
+
       <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">Available Jobs</h2>
 
       {/* Search Bar */}
